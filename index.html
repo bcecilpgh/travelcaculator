@@ -184,7 +184,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
       </div>
       <div class="info-block">
         <h3>Travel Labor & Logistics</h3>
-        <p>Use the <strong>Travel-Only Rate</strong> toggle if your techs bill travel time at a different (unburdened) rate. The <strong>Load/Unload</strong> time is always calculated using their fully burdened Base Rate. Use the Cargo section to track freight and trailer rentals.</p>
+        <p>Use the <strong>Unburdened Base Rate</strong> toggle if your techs bill travel time at straight time (1.0x). The <strong>Load/Unload</strong> time is always calculated using their fully burdened Base Rate. Use the Cargo section to track freight and trailer rentals.</p>
       </div>
       <div class="info-block">
         <h3>Saving &amp; Sharing</h3>
@@ -192,7 +192,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
       </div>
       <div class="info-block">
         <h3>Truck Rolls & Defaults</h3>
-        <p>Vehicle costs can include a flat <strong>Truck Roll Fee</strong> to account for wear and tear. If you adjust the defaults (like your preferred Truck Roll fee or Travel Rate), click <strong>Save Current as Defaults</strong> at the bottom of the page.</p>
+        <p>Vehicle costs can include a flat <strong>Truck Roll Fee</strong> to account for wear and tear. If you adjust the defaults (like your preferred Truck Roll fee or Buffers), click <strong>Save Current as Defaults</strong> at the bottom of the page.</p>
       </div>
     </div>
     <button class="btn btn-secondary btn-small" onclick="toggleInfo()" style="margin-top:.75rem">Close</button>
@@ -277,12 +277,12 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
         <div class="toggle-row" style="background:var(--bg3); padding:.5rem .75rem; border-radius:6px; border:1px solid var(--border);">
           <input type="checkbox" id="driveUseTravelRate" onchange="recalc()">
-          <label for="driveUseTravelRate">Use Travel-Only Labor Rate for Driving ($/hr):</label>
-          <input type="number" id="driveTravelRateOverride" class="input-yellow" style="width:75px; padding:0.25rem 0.5rem; margin-left:auto; text-align:right" value="25" step="0.5" oninput="recalc()">
+          <label for="driveUseTravelRate">Use Unburdened Base Rate for Travel ($/hr):</label>
+          <div id="driveTravelRateDisplay" class="output" style="min-width:75px; min-height:28px; padding:0.25rem 0.5rem; margin-left:auto; justify-content:center;">$0.00</div>
         </div>
 
         <div class="field-inline">
-          <div class="field"><label>Hourly Burden (RT)</label><div class="output" id="driveHourlyRTDisplay">--</div></div>
+          <div class="field"><label>Hourly Rate (RT)</label><div class="output" id="driveHourlyRTDisplay">--</div></div>
           <div class="field"><label>Hours Drive (RT)</label><input type="number" id="driveHoursRT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
           <div class="field"><label>RT Labor</label><div class="output" id="driveLaborRT">$0.00</div></div>
         </div>
@@ -291,13 +291,13 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
           <label for="driveOTSameAsRT">OT hours same as RT hours</label>
         </div>
         <div class="field-inline">
-          <div class="field"><label>Hourly Burden (OT)</label><div class="output" id="driveHourlyOTDisplay">--</div></div>
+          <div class="field"><label>Hourly Rate (OT)</label><div class="output" id="driveHourlyOTDisplay">--</div></div>
           <div class="field"><label>Hours Drive (OT)</label><input type="number" id="driveHoursOT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
           <div class="field"><label>OT Labor</label><div class="output" id="driveLaborOT">$0.00</div></div>
         </div>
         
         <div class="field-inline" style="margin-top: .75rem;">
-          <div class="field"><label>Load/Unload (Hrs)</label><input type="number" id="driveHoursLoad" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"><div class="hint">Uses Fully Burdened Base</div></div>
+          <div class="field"><label>Load/Unload (Hrs)</label><input type="number" id="driveHoursLoad" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"><div class="hint">Always Fully Burdened</div></div>
           <div class="field"><label>Load Labor</label><div class="output" id="driveLaborLoad">$0.00</div></div>
           <div class="field" style="text-align:right"><label>Total Labor/Person</label><div class="output" id="driveLaborTotal" style="justify-content:center">$0.00</div></div>
         </div>
@@ -340,12 +340,12 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
         <div class="toggle-row" style="background:var(--bg3); padding:.5rem .75rem; border-radius:6px; border:1px solid var(--border);">
           <input type="checkbox" id="flyUseTravelRate" onchange="recalc()">
-          <label for="flyUseTravelRate">Use Travel-Only Labor Rate for Flying ($/hr):</label>
-          <input type="number" id="flyTravelRateOverride" class="input-yellow" style="width:75px; padding:0.25rem 0.5rem; margin-left:auto; text-align:right" value="25" step="0.5" oninput="recalc()">
+          <label for="flyUseTravelRate">Use Unburdened Base Rate for Travel ($/hr):</label>
+          <div id="flyTravelRateDisplay" class="output" style="min-width:75px; min-height:28px; padding:0.25rem 0.5rem; margin-left:auto; justify-content:center;">$0.00</div>
         </div>
 
         <div class="field-inline">
-          <div class="field"><label>Hourly Burden (RT)</label><div class="output" id="flyHourlyRTDisplay">--</div></div>
+          <div class="field"><label>Hourly Rate (RT)</label><div class="output" id="flyHourlyRTDisplay">--</div></div>
           <div class="field"><label>Hours Travel (RT)</label><input type="number" id="flyHoursRT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
           <div class="field"><label>RT Labor</label><div class="output" id="flyLaborRT">$0.00</div></div>
         </div>
@@ -354,13 +354,13 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
           <label for="flyOTSameAsRT">OT hours same as RT hours</label>
         </div>
         <div class="field-inline">
-          <div class="field"><label>Hourly Burden (OT)</label><div class="output" id="flyHourlyOTDisplay">--</div></div>
+          <div class="field"><label>Hourly Rate (OT)</label><div class="output" id="flyHourlyOTDisplay">--</div></div>
           <div class="field"><label>Hours Travel (OT)</label><input type="number" id="flyHoursOT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
           <div class="field"><label>OT Labor</label><div class="output" id="flyLaborOT">$0.00</div></div>
         </div>
 
         <div class="field-inline" style="margin-top: .75rem;">
-          <div class="field"><label>Pack/Prep (Hrs)</label><input type="number" id="flyHoursLoad" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"><div class="hint">Uses Fully Burdened Base</div></div>
+          <div class="field"><label>Pack/Prep (Hrs)</label><input type="number" id="flyHoursLoad" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"><div class="hint">Always Fully Burdened</div></div>
           <div class="field"><label>Prep Labor</label><div class="output" id="flyLaborLoad">$0.00</div></div>
           <div class="field" style="text-align:right"><label>Total Labor/Person</label><div class="output" id="flyLaborTotal" style="justify-content:center">$0.00</div></div>
         </div>
@@ -479,10 +479,10 @@ const FACTORY_DEFAULTS={
   gsaUrl:'https://www.gsa.gov/travel/plan-book/per-diem-rates',
   hotelCost:'0',perDiemFood:'75',
   freightCost:'0',miscSupplies:'50',trailerCost:'0',
-  driveRateSelect:'',driveCustomRate:'',driveTravelRateOverride:'25',
+  driveRateSelect:'',driveCustomRate:'',
   driveHoursRT:'0',driveOTSameAsRT:false,driveHoursOT:'0',driveHoursLoad:'0',
   milesSites:'0',milesHD:'0',milesDinner:'0',mileageRate:'0.70',totalVehicles:'1',truckRollFee:'25',driveBuffer:'10',
-  flyRateSelect:'',flyCustomRate:'',flyTravelRateOverride:'25',
+  flyRateSelect:'',flyCustomRate:'',
   flyHoursRT:'0',flyOTSameAsRT:false,flyHoursOT:'0',flyHoursLoad:'0',
   airfare:'0',rentalVehicleCost:'0',airportParking:'36',baggageFees:'0',flyBuffer:'10',
   notes:''
@@ -491,9 +491,9 @@ const FACTORY_DEFAULTS={
 const SERIALIZED_FIELDS=[
   'zipCode','projectName','daysOnSite','totalPeople','gsaUrl','hotelCost','perDiemFood',
   'freightCost','miscSupplies','trailerCost',
-  'driveRateSelect','driveCustomRate','driveTravelRateOverride','driveHoursRT','driveHoursOT','driveHoursLoad',
+  'driveRateSelect','driveCustomRate','driveHoursRT','driveHoursOT','driveHoursLoad',
   'milesSites','milesHD','milesDinner','mileageRate','totalVehicles','truckRollFee','driveBuffer',
-  'flyRateSelect','flyCustomRate','flyTravelRateOverride','flyHoursRT','flyHoursOT','flyHoursLoad',
+  'flyRateSelect','flyCustomRate','flyHoursRT','flyHoursOT','flyHoursLoad',
   'airfare','rentalVehicleCost','airportParking','baggageFees','flyBuffer',
   'notes'
 ];
@@ -638,11 +638,15 @@ function recalc(){
   // --- DRIVING MATH ---
   const dBase = getBaseRate('drive');
   const driveUseTrvl = v('driveUseTravelRate');
-  const dHRT = driveUseTrvl ? v('driveTravelRateOverride') : dBase * RT_MULT;
-  const dHOT = driveUseTrvl ? v('driveTravelRateOverride') : dBase * OT_MULT;
   
-  $('driveHourlyRTDisplay').textContent = (dBase > 0 || driveUseTrvl) ? '$'+dHRT.toFixed(2) : '--';
-  $('driveHourlyOTDisplay').textContent = (dBase > 0 || driveUseTrvl) ? '$'+dHOT.toFixed(2) : '--';
+  // Update the visual travel rate reference
+  $('driveTravelRateDisplay').textContent = dBase > 0 ? '$' + dBase.toFixed(2) : '$0.00';
+
+  const dHRT = driveUseTrvl ? dBase : dBase * RT_MULT;
+  const dHOT = driveUseTrvl ? dBase : dBase * OT_MULT;
+  
+  $('driveHourlyRTDisplay').textContent = dBase > 0 ? '$'+dHRT.toFixed(2) : '--';
+  $('driveHourlyOTDisplay').textContent = dBase > 0 ? '$'+dHOT.toFixed(2) : '--';
   
   const dRT = dHRT * v('driveHoursRT');
   const dOT = dHOT * v('driveHoursOT');
@@ -684,11 +688,15 @@ function recalc(){
   // --- FLYING MATH ---
   const fBase = getBaseRate('fly');
   const flyUseTrvl = v('flyUseTravelRate');
-  const fHRT = flyUseTrvl ? v('flyTravelRateOverride') : fBase * RT_MULT;
-  const fHOT = flyUseTrvl ? v('flyTravelRateOverride') : fBase * OT_MULT;
   
-  $('flyHourlyRTDisplay').textContent = (fBase > 0 || flyUseTrvl) ? '$'+fHRT.toFixed(2) : '--';
-  $('flyHourlyOTDisplay').textContent = (fBase > 0 || flyUseTrvl) ? '$'+fHOT.toFixed(2) : '--';
+  // Update the visual travel rate reference
+  $('flyTravelRateDisplay').textContent = fBase > 0 ? '$' + fBase.toFixed(2) : '$0.00';
+
+  const fHRT = flyUseTrvl ? fBase : fBase * RT_MULT;
+  const fHOT = flyUseTrvl ? fBase : fBase * OT_MULT;
+  
+  $('flyHourlyRTDisplay').textContent = fBase > 0 ? '$'+fHRT.toFixed(2) : '--';
+  $('flyHourlyOTDisplay').textContent = fBase > 0 ? '$'+fHOT.toFixed(2) : '--';
   
   const fRT = fHRT * v('flyHoursRT');
   const fOT = fHOT * v('flyHoursOT');
