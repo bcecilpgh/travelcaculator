@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FT Travel Cost Estimator</title>
+<link rel="icon" href="https://drive.google.com/uc?export=view&id=11SmY-1HZLhCNt4c5DUXU62pgfEmykDEr" type="image/x-icon">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -38,7 +39,10 @@
 html{font-size:14px;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
 body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
-.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;color:#f0f6fc}
+/* Expanded Header Styles */
+.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:1.5rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;color:#f0f6fc}
+.brand-container{display:flex;align-items:center;gap:1.2rem;}
+.brand-logo{max-height:45px;width:auto;display:block;}
 .header h1{font-weight:900;font-size:1.4rem;letter-spacing:-.02em}
 .header h1 span{color:var(--green)}
 .header-actions{display:flex;gap:.5rem;flex-wrap:wrap}
@@ -165,7 +169,11 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 <body>
 
 <div class="header">
-  <h1><span>FT</span> Travel Cost Estimator</h1>
+  <div class="brand-container">
+    <img src="https://drive.google.com/uc?export=view&id=1BusrW6m5nE-aUxBgNhlIX-4JSadT5Eo-" alt="Fresh Tech Logo" class="brand-logo">
+    <h1><span>FT</span> Travel Cost Estimator</h1>
+  </div>
+  
   <div class="header-actions">
     <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
     <button class="btn btn-secondary btn-small" onclick="toggleInfo()" id="infoBtn" title="How this works"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Info</button>
@@ -227,9 +235,9 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
       <div class="field-inline">
         <div class="field" style="max-width: 140px;">
             <label>Zip Code (Auto GSA)</label>
-            <input type="text" id="zipCode" class="input-yellow" placeholder="15221" maxlength="5" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
+            <input type="text" id="zipCode" class="input-yellow" placeholder="18015" maxlength="5" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
         </div>
-        <div class="field"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Pittsburgh, PA" oninput="recalc()"></div>
+        <div class="field"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Bethlehem, PA" oninput="recalc()"></div>
         <div class="field"><label>Total Days (Travel + On-Site)</label><input type="number" id="daysOnSite" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
         <div class="field"><label>Total People</label><input type="number" id="totalPeople" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
       </div>
@@ -255,7 +263,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
       <div class="field-inline">
         <div class="field"><label>Shipping / Freight (Fly) ($)</label><input type="number" id="freightCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"><div class="hint">Added to Flying Total</div></div>
         <div class="field"><label>Trailer Rental (Drive) ($)</label><input type="number" id="trailerCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"><div class="hint">Added to Driving Total</div></div>
-        <div class="field"><label>Misc Local Supplies/Parts ($)</label><input type="number" id="miscSupplies" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"><div class="hint">Added to Both Totals</div></div>
+        <div class="field"><label>Misc Local Supplies/Parts ($)</label><input type="number" id="miscSupplies" class="input-yellow" value="50" min="0" step="1" oninput="recalc()"><div class="hint">Added to Both Totals</div></div>
       </div>
     </div>
   </div>
@@ -310,11 +318,11 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
           <div class="field"><label>Dist. to Dinner</label><input type="number" id="milesDinner" class="input-yellow" value="0" min="0" oninput="recalc()"></div>
         </div>
         <div class="field-inline" style="margin-top:.75rem">
-          <div class="field"><label>Mileage Rate ($/mi)</label><input type="number" id="mileageRate" class="input-yellow" value="0.73" step="0.01" oninput="recalc()"></div>
+          <div class="field"><label>Mileage Rate ($/mi)</label><input type="number" id="mileageRate" class="input-yellow" value="0.725" step="0.005" oninput="recalc()"></div>
           <div class="field"><label>Total Vehicles</label><input type="number" id="totalVehicles" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
         </div>
         <div class="field-inline" style="margin-top:.75rem">
-          <div class="field"><label>Truck Roll Fee / Veh ($)</label><input type="number" id="truckRollFee" class="input-yellow" value="65" min="0" oninput="recalc()"><div class="hint">Flat Wear & Tear Fee</div></div>
+          <div class="field"><label>Truck Roll Fee / Veh ($)</label><input type="number" id="truckRollFee" class="input-yellow" value="25" min="0" oninput="recalc()"><div class="hint">Flat Wear & Tear Fee</div></div>
           <div class="field"><label>Total Vehicle Costs</label><div class="output" id="totalVehicleCost">$0.00</div></div>
         </div>
 
@@ -372,7 +380,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
           <div class="field"><label>Rental SUV/Van/Uber ($/Day)</label><input type="number" id="rentalVehicleCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
         </div>
         <div class="field-inline" style="margin-top:.75rem">
-          <div class="field"><label>Airport Parking / Person ($)</label><input type="number" id="airportParking" class="input-yellow" value="25" min="0" step="1" oninput="recalc()"></div>
+          <div class="field"><label>Airport Parking / Person ($)</label><input type="number" id="airportParking" class="input-yellow" value="36" min="0" step="1" oninput="recalc()"></div>
           <div class="field"><label>Baggage / Misc ($)</label><input type="number" id="baggageFees" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
           <div class="field"><label>Total Air Costs</label><div class="output" id="totalAirCosts">$0.00</div></div>
         </div>
@@ -478,13 +486,13 @@ const FACTORY_DEFAULTS={
   zipCode:'',projectName:'',daysOnSite:'1',totalPeople:'1',
   gsaUrl:'https://www.gsa.gov/travel/plan-book/per-diem-rates',
   hotelCost:'0',perDiemFood:'75',
-  freightCost:'0',miscSupplies:'0',trailerCost:'0',
+  freightCost:'0',miscSupplies:'50',trailerCost:'0',
   driveRateSelect:'',driveCustomRate:'',
   driveHoursRT:'0',driveOTSameAsRT:false,driveHoursOT:'0',driveHoursLoad:'0',
-  milesSites:'0',milesHD:'0',milesDinner:'0',mileageRate:'0.73',totalVehicles:'1',truckRollFee:'65',driveBuffer:'10',
+  milesSites:'0',milesHD:'0',milesDinner:'0',mileageRate:'0.725',totalVehicles:'1',truckRollFee:'25',driveBuffer:'10',
   flyRateSelect:'',flyCustomRate:'',
   flyHoursRT:'0',flyOTSameAsRT:false,flyHoursOT:'0',flyHoursLoad:'0',
-  airfare:'0',rentalVehicleCost:'0',airportParking:'25',baggageFees:'0',flyBuffer:'10',
+  airfare:'0',rentalVehicleCost:'0',airportParking:'36',baggageFees:'0',flyBuffer:'10',
   notes:''
 };
 
