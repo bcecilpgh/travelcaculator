@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FT Travel Cost Estimator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#C4E04F;--green-dark:#39B224;
+  --font-head:'Inter','Helvetica Neue',Arial,sans-serif;
+  --font-mono:'Roboto Mono','Courier New',monospace;
+}
+
+/* Dark theme */
+[data-theme="dark"]{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+  --text:#f0f6fc;--text2:#8b949e;
+  --blue:#58a6ff;--red:#f85149;--yellow:#d29922;
+  --header-bg:#000;
+  --output-bg:rgba(88,166,255,.08);--output-border:rgba(88,166,255,.2);
+  --highlight-bg:rgba(196,224,79,.08);--highlight-border:var(--green);
+  --toast-bg:var(--green);--toast-text:#000;
+}
+
+/* Light theme */
+[data-theme="light"]{
+  --bg:#ffffff;--bg2:#f6f8fa;--bg3:#e8eaed;--border:#d0d7de;
+  --text:#24292f;--text2:#57606a;
+  --blue:#0969da;--red:#cf222e;--yellow:#9a6700;
+  --header-bg:#24292f;
+  --output-bg:rgba(9,105,218,.06);--output-border:rgba(9,105,218,.2);
+  --highlight-bg:rgba(196,224,79,.12);--highlight-border:var(--green-dark);
+  --toast-bg:var(--green-dark);--toast-text:#fff;
+}
+
+html{font-size:14px;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
+body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
+
+.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;color:#f0f6fc}
+.header h1{font-weight:900;font-size:1.4rem;letter-spacing:-.02em}
+.header h1 span{color:var(--green)}
+.header-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+
+.btn{padding:.5rem 1rem;border:none;border-radius:6px;font-weight:600;font-size:.8rem;cursor:pointer;font-family:var(--font-head);transition:all .15s;min-height:36px;display:inline-flex;align-items:center;gap:.4rem}
+.btn-primary{background:var(--green);color:#000}
+.btn-primary:hover{background:var(--green-dark);color:#fff}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border)}
+.header .btn-secondary{background:rgba(255,255,255,.1);color:#f0f6fc;border:1px solid rgba(255,255,255,.15)}
+.header .btn-secondary:hover{background:rgba(255,255,255,.18)}
+.header .btn-primary{background:var(--green);color:#000}
+.btn-danger{background:rgba(200,67,45,.15);color:var(--red);border:1px solid rgba(200,67,45,.3)}
+.btn-danger:hover{background:rgba(200,67,45,.25)}
+.btn-small{padding:.35rem .7rem;font-size:.75rem;min-height:30px}
+
+.theme-toggle{background:none;border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#f0f6fc;cursor:pointer;padding:.35rem .55rem;min-height:30px;display:inline-flex;align-items:center;transition:all .15s}
+.theme-toggle:hover{background:rgba(255,255,255,.1)}
+.theme-toggle svg{width:16px;height:16px}
+
+.container{max-width:1400px;margin:0 auto;padding:1.5rem}
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:1.25rem;overflow:hidden;transition:background .2s,border-color .2s}
+.section-header{background:var(--bg3);padding:.6rem .875rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .2s}
+.section-header h2{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.section-header .tag{font-family:var(--font-mono);font-size:.65rem;color:var(--text2);text-transform:uppercase}
+.section-body{padding:1rem}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+
+.field{margin-bottom:.85rem}
+.field label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem;font-family:var(--font-mono)}
+.field input,.field select{width:100%;padding:.5rem .7rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.9rem;font-family:var(--font-head);transition:border-color .15s,background .2s,color .2s}
+.field select{background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b949e' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:2rem;cursor:pointer}
+.field select option{background:var(--bg2);color:var(--text)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.15)}
+.field input.input-yellow,.field select.input-yellow{background:var(--bg);border:1px solid var(--border)}
+.field input.input-yellow:focus,.field select.input-yellow:focus{border-color:var(--text2);box-shadow:0 0 0 3px rgba(128,128,128,.1)}
+.field input:disabled{opacity:.5;cursor:not-allowed}
+.field-inline{display:flex;gap:.75rem;align-items:end}
+.field-inline .field{flex:1;margin-bottom:0}
+.field .hint{font-size:.7rem;color:var(--text2);margin-top:.2rem}
+
+.custom-rate-row{display:none;margin-top:.5rem;margin-bottom:.5rem}
+.custom-rate-row.visible{display:flex;gap:.75rem;align-items:end}
+.custom-rate-row .field{flex:1;margin-bottom:0}
+
+.output{padding:.5rem .7rem;background:var(--output-bg);border:1px solid var(--output-border);border-radius:6px;font-size:.9rem;font-weight:600;font-family:var(--font-mono);color:var(--blue);min-height:36px;display:flex;align-items:center;transition:background .2s,border-color .2s}
+
+.toggle-row{display:flex;align-items:center;gap:.5rem;margin-top:.35rem;margin-bottom:.5rem; user-select:none}
+.toggle-row input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+.toggle-row label{font-size:.75rem;color:var(--text2);cursor:pointer; font-weight:600;}
+
+.compare-banner{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;padding:1rem;margin-bottom:1.25rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;transition:background .2s}
+.compare-side{text-align:center}
+.compare-side .compare-label{font-family:var(--font-mono);font-size:.65rem;text-transform:uppercase;color:var(--text2);margin-bottom:.2rem}
+.compare-side .compare-value{font-size:1.6rem;font-weight:900}
+.compare-side .compare-value.winner{color:var(--green)}
+[data-theme="light"] .compare-side .compare-value.winner{color:var(--green-dark)}
+.compare-side .compare-value.loser{color:var(--text2)}
+.compare-vs{font-size:.8rem;font-weight:700;color:var(--text2);text-transform:uppercase;font-family:var(--font-mono)}
+.compare-sub{font-size:.7rem;color:var(--text2);margin-top:.15rem}
+
+.summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-top:.5rem}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.85rem;text-align:center;transition:background .2s}
+.stat-card.highlight{border-color:var(--highlight-border);background:var(--highlight-bg)}
+.stat-card .stat-label{font-size:.65rem;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;font-family:var(--font-mono);margin-bottom:.25rem}
+.stat-card .stat-value{font-size:1.3rem;font-weight:700}
+.stat-card .stat-value.green{color:var(--green)}
+[data-theme="light"] .stat-card .stat-value.green{color:var(--green-dark)}
+.stat-card .stat-value.blue{color:var(--blue)}
+
+.rate-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.rate-table th{background:var(--bg3);padding:.45rem .6rem;text-align:left;font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);font-family:var(--font-mono);border-bottom:1px solid var(--border)}
+.rate-table td{padding:.4rem .6rem;border-bottom:1px solid var(--border)}
+.rate-table tr:last-child td{border-bottom:none}
+.rate-table .computed{color:var(--blue);font-family:var(--font-mono)}
+
+.notes-area{width:100%;min-height:100px;padding:.7rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-head);font-size:.85rem;resize:vertical;transition:background .2s,color .2s}
+.notes-area:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.15)}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--toast-bg);color:var(--toast-text);padding:.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:.85rem;transform:translateY(100px);opacity:0;transition:all .3s;z-index:100;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+.collapsible-toggle{cursor:pointer;user-select:none}
+.collapsible-toggle::after{content:' \u25BE';font-size:.7em}
+.collapsible-toggle.collapsed::after{content:' \u25B8'}
+.collapsible-content{overflow:hidden;transition:max-height .3s ease}
+.collapsible-content.collapsed{max-height:0 !important;padding-top:0 !important;padding-bottom:0 !important}
+
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.legend-item{display:flex;align-items:center;gap:.35rem;font-size:.75rem}
+.legend-dot{width:10px;height:10px;border-radius:3px}
+.legend-dot.blue{background:var(--blue)}
+.legend-dot.green-l{background:var(--green)}
+[data-theme="light"] .legend-dot.green-l{background:var(--green-dark)}
+
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
+
+.defaults-bar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.defaults-bar .defaults-status{font-size:.75rem;color:var(--text2);font-family:var(--font-mono)}
+.defaults-bar .defaults-status.saved{color:var(--green)}
+[data-theme="light"] .defaults-bar .defaults-status.saved{color:var(--green-dark)}
+
+.footer{text-align:center;padding:2rem 1rem 1.5rem;color:var(--text2);font-size:.7rem;font-family:var(--font-mono)}
+
+@media print{
+  .header-actions,.btn,.toast,.compare-banner,.info-panel,.theme-toggle, .defaults-bar, .section-header .tag {display:none !important}
+  .container{padding:0}
+  .section{break-inside:avoid}
+  body { background: #fff !important; color: #000 !important; }
+}
+
+.info-panel{max-height:0;overflow:hidden;background:var(--bg2);border-bottom:1px solid var(--border);transition:max-height .35s ease}
+.info-panel.open{max-height:800px}
+.info-panel-inner{padding:1.25rem 1.5rem}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.info-grid{grid-template-columns:1fr}}
+.info-block h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text);margin-bottom:.35rem;font-family:var(--font-mono)}
+.info-block p{font-size:.82rem;color:var(--text2);line-height:1.6}
+.info-block p strong{color:var(--text);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>FT</span> Travel Cost Estimator</h1>
+  <div class="header-actions">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    <button class="btn btn-secondary btn-small" onclick="toggleInfo()" id="infoBtn" title="How this works"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Info</button>
+    <button class="btn btn-secondary btn-small" onclick="copyURL()" title="Copy shareable URL"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Copy URL</button>
+    <button class="btn btn-secondary btn-small" onclick="resetForm()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Reset</button>
+    <button class="btn btn-primary btn-small" onclick="saveAsHTML()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Save HTML</button>
+  </div>
+</div>
+
+<div class="info-panel" id="infoPanel">
+  <div class="info-panel-inner">
+    <div class="info-grid">
+      <div class="info-block">
+        <h3>GSA Auto-Lookup</h3>
+        <p>Type a 5-digit zip code into the Project Info section. The app will automatically connect to the <strong>GSA API</strong> and pull the maximum lodging rate for the year and the exact food per diem for that city.</p>
+      </div>
+      <div class="info-block">
+        <h3>Travel Labor & Logistics</h3>
+        <p>Use the <strong>Travel-Only Rate</strong> toggle if your techs bill travel time at a different (unburdened) rate. The <strong>Load/Unload</strong> time is always calculated using their fully burdened Base Rate. Use the Cargo section to track freight and trailer rentals.</p>
+      </div>
+      <div class="info-block">
+        <h3>Saving &amp; Sharing</h3>
+        <p>Everything you enter is saved directly into the page URL. To save an estimate, click <strong>Copy URL</strong> and paste the link wherever you track projects. Anyone who opens that link will see exactly what you entered.</p>
+      </div>
+      <div class="info-block">
+        <h3>Truck Rolls & Defaults</h3>
+        <p>Vehicle costs can include a flat <strong>Truck Roll Fee</strong> to account for wear and tear. If you adjust the defaults (like your preferred Truck Roll fee or Travel Rate), click <strong>Save Current as Defaults</strong> at the bottom of the page.</p>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-small" onclick="toggleInfo()" style="margin-top:.75rem">Close</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div> Editable inputs</div>
+    <div class="legend-item"><div class="legend-dot blue"></div> Calculated outputs</div>
+    <div class="legend-item"><div class="legend-dot green-l"></div> Final charges</div>
+  </div>
+
+  <div class="compare-banner" id="compareBanner">
+    <div class="compare-side">
+      <div class="compare-label">Driving Total</div>
+      <div class="compare-value" id="cmpDrive">--</div>
+      <div class="compare-sub" id="cmpDriveSub"></div>
+    </div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-side">
+      <div class="compare-label">Flying Total</div>
+      <div class="compare-value" id="cmpFly">--</div>
+      <div class="compare-sub" id="cmpFlySub"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><h2>Project Info</h2><span class="tag">Step 1</span></div>
+    <div class="section-body">
+      <div class="field-inline">
+        <div class="field" style="max-width: 140px;">
+            <label>Zip Code (Auto GSA)</label>
+            <input type="text" id="zipCode" class="input-yellow" placeholder="18015" maxlength="5" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
+        </div>
+        <div class="field"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Bethlehem, PA" oninput="recalc()"></div>
+        <div class="field"><label>Total Days (Travel + On-Site)</label><input type="number" id="daysOnSite" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
+        <div class="field"><label>Total People</label><input type="number" id="totalPeople" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><h2>Per Diem &amp; Lodging</h2><span class="tag">Step 2</span></div>
+    <div class="section-body">
+      <div class="field"><label>GSA Per Diem Reference</label><div style="display:flex;gap:.5rem"><input type="url" id="gsaUrl" class="input-yellow" value="https://www.gsa.gov/travel/plan-book/per-diem-rates" oninput="recalc()" style="flex:1"><button class="btn btn-secondary btn-small" onclick="window.open($('gsaUrl').value,'_blank')" style="white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in New Tab</button></div></div>
+      <div class="field-inline">
+        <div class="field"><label>Hotel Cost/Night ($)</label><input type="number" id="hotelCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
+        <div class="field"><label>Per Diem Food/Day ($)</label><input type="number" id="perDiemFood" class="input-yellow" value="75" min="0" step="1" oninput="recalc()"></div>
+        <div class="field"><label>Hotel Nights (Days on-site - 1)</label><div class="output" id="hotelNights">0</div></div>
+        <div class="field"><label>Total / Person</label><div class="output" id="totalPerDiemPerson">$0.00</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><h2>Cargo & Logistics</h2><span class="tag">Step 3</span></div>
+    <div class="section-body">
+      <div class="field-inline">
+        <div class="field"><label>Shipping / Freight (Fly) ($)</label><input type="number" id="freightCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"><div class="hint">Added to Flying Total</div></div>
+        <div class="field"><label>Trailer Rental (Drive) ($)</label><input type="number" id="trailerCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"><div class="hint">Added to Driving Total</div></div>
+        <div class="field"><label>Misc Local Supplies/Parts ($)</label><input type="number" id="miscSupplies" class="input-yellow" value="50" min="0" step="1" oninput="recalc()"><div class="hint">Added to Both Totals</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+
+    <div class="section">
+      <div class="section-header"><h2>Driving Estimate</h2><span class="tag">Option A</span></div>
+      <div class="section-body">
+        <h3 style="font-size:.8rem;margin-bottom:.75rem;color:var(--text2)">Labor Costs</h3>
+        <div class="field"><label>Employee Base Rate</label>
+          <select id="driveRateSelect" class="input-yellow" onchange="onRateSelect('drive')">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+        <div class="custom-rate-row" id="driveCustomRow">
+          <div class="field"><label>Custom Rate ($/hr)</label><input type="number" id="driveCustomRate" class="input-yellow" value="" min="0" step="0.5" placeholder="e.g. 37.50" oninput="onCustomRate('drive')"></div>
+        </div>
+
+        <div class="toggle-row" style="background:var(--bg3); padding:.5rem .75rem; border-radius:6px; border:1px solid var(--border);">
+          <input type="checkbox" id="driveUseTravelRate" onchange="recalc()">
+          <label for="driveUseTravelRate">Use Travel-Only Labor Rate for Driving ($/hr):</label>
+          <input type="number" id="driveTravelRateOverride" class="input-yellow" style="width:75px; padding:0.25rem 0.5rem; margin-left:auto; text-align:right" value="25" step="0.5" oninput="recalc()">
+        </div>
+
+        <div class="field-inline">
+          <div class="field"><label>Hourly Burden (RT)</label><div class="output" id="driveHourlyRTDisplay">--</div></div>
+          <div class="field"><label>Hours Drive (RT)</label><input type="number" id="driveHoursRT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
+          <div class="field"><label>RT Labor</label><div class="output" id="driveLaborRT">$0.00</div></div>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="driveOTSameAsRT" onchange="recalc()">
+          <label for="driveOTSameAsRT">OT hours same as RT hours</label>
+        </div>
+        <div class="field-inline">
+          <div class="field"><label>Hourly Burden (OT)</label><div class="output" id="driveHourlyOTDisplay">--</div></div>
+          <div class="field"><label>Hours Drive (OT)</label><input type="number" id="driveHoursOT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
+          <div class="field"><label>OT Labor</label><div class="output" id="driveLaborOT">$0.00</div></div>
+        </div>
+        
+        <div class="field-inline" style="margin-top: .75rem;">
+          <div class="field"><label>Load/Unload (Hrs)</label><input type="number" id="driveHoursLoad" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"><div class="hint">Uses Fully Burdened Base</div></div>
+          <div class="field"><label>Load Labor</label><div class="output" id="driveLaborLoad">$0.00</div></div>
+          <div class="field" style="text-align:right"><label>Total Labor/Person</label><div class="output" id="driveLaborTotal" style="justify-content:center">$0.00</div></div>
+        </div>
+
+        <hr class="divider">
+        <h3 style="font-size:.8rem;margin-bottom:.75rem;color:var(--text2)">Mileage Reimbursement / Vehicle</h3>
+        <div class="field-inline">
+          <div class="field"><label>Miles Between Sites</label><input type="number" id="milesSites" class="input-yellow" value="0" min="0" oninput="recalc()"></div>
+          <div class="field"><label>Dist. to Home Depot</label><input type="number" id="milesHD" class="input-yellow" value="0" min="0" oninput="recalc()"></div>
+          <div class="field"><label>Dist. to Dinner</label><input type="number" id="milesDinner" class="input-yellow" value="0" min="0" oninput="recalc()"></div>
+        </div>
+        <div class="field-inline" style="margin-top:.75rem">
+          <div class="field"><label>Mileage Rate ($/mi)</label><input type="number" id="mileageRate" class="input-yellow" value="0.70" step="0.01" oninput="recalc()"></div>
+          <div class="field"><label>Total Vehicles</label><input type="number" id="totalVehicles" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
+        </div>
+        <div class="field-inline" style="margin-top:.75rem">
+          <div class="field"><label>Truck Roll Fee / Veh ($)</label><input type="number" id="truckRollFee" class="input-yellow" value="25" min="0" oninput="recalc()"><div class="hint">Flat Wear & Tear Fee</div></div>
+          <div class="field"><label>Total Vehicle Costs</label><div class="output" id="totalVehicleCost">$0.00</div></div>
+        </div>
+
+        <hr class="divider">
+        <div class="field-inline">
+          <div class="field"><label>Buffer for Overages (%)</label><input type="number" id="driveBuffer" class="input-yellow" value="10" min="0" max="100" step="1" oninput="recalc()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><h2>Flying Estimate</h2><span class="tag">Option B</span></div>
+      <div class="section-body">
+        <h3 style="font-size:.8rem;margin-bottom:.75rem;color:var(--text2)">Labor Costs</h3>
+        <div class="field"><label>Employee Base Rate</label>
+          <select id="flyRateSelect" class="input-yellow" onchange="onRateSelect('fly')">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+        <div class="custom-rate-row" id="flyCustomRow">
+          <div class="field"><label>Custom Rate ($/hr)</label><input type="number" id="flyCustomRate" class="input-yellow" value="" min="0" step="0.5" placeholder="e.g. 37.50" oninput="onCustomRate('fly')"></div>
+        </div>
+
+        <div class="toggle-row" style="background:var(--bg3); padding:.5rem .75rem; border-radius:6px; border:1px solid var(--border);">
+          <input type="checkbox" id="flyUseTravelRate" onchange="recalc()">
+          <label for="flyUseTravelRate">Use Travel-Only Labor Rate for Flying ($/hr):</label>
+          <input type="number" id="flyTravelRateOverride" class="input-yellow" style="width:75px; padding:0.25rem 0.5rem; margin-left:auto; text-align:right" value="25" step="0.5" oninput="recalc()">
+        </div>
+
+        <div class="field-inline">
+          <div class="field"><label>Hourly Burden (RT)</label><div class="output" id="flyHourlyRTDisplay">--</div></div>
+          <div class="field"><label>Hours Travel (RT)</label><input type="number" id="flyHoursRT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
+          <div class="field"><label>RT Labor</label><div class="output" id="flyLaborRT">$0.00</div></div>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="flyOTSameAsRT" onchange="recalc()">
+          <label for="flyOTSameAsRT">OT hours same as RT hours</label>
+        </div>
+        <div class="field-inline">
+          <div class="field"><label>Hourly Burden (OT)</label><div class="output" id="flyHourlyOTDisplay">--</div></div>
+          <div class="field"><label>Hours Travel (OT)</label><input type="number" id="flyHoursOT" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"></div>
+          <div class="field"><label>OT Labor</label><div class="output" id="flyLaborOT">$0.00</div></div>
+        </div>
+
+        <div class="field-inline" style="margin-top: .75rem;">
+          <div class="field"><label>Pack/Prep (Hrs)</label><input type="number" id="flyHoursLoad" class="input-yellow" value="0" min="0" step="0.5" oninput="recalc()"><div class="hint">Uses Fully Burdened Base</div></div>
+          <div class="field"><label>Prep Labor</label><div class="output" id="flyLaborLoad">$0.00</div></div>
+          <div class="field" style="text-align:right"><label>Total Labor/Person</label><div class="output" id="flyLaborTotal" style="justify-content:center">$0.00</div></div>
+        </div>
+
+        <hr class="divider">
+        <h3 style="font-size:.8rem;margin-bottom:.75rem;color:var(--text2)">Air Travel Expenses</h3>
+        <div class="field-inline">
+          <div class="field"><label>Airfare / Person ($)</label><input type="number" id="airfare" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
+          <div class="field"><label>Rental SUV/Van/Uber ($/Day)</label><input type="number" id="rentalVehicleCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
+        </div>
+        <div class="field-inline" style="margin-top:.75rem">
+          <div class="field"><label>Airport Parking / Person ($)</label><input type="number" id="airportParking" class="input-yellow" value="36" min="0" step="1" oninput="recalc()"></div>
+          <div class="field"><label>Baggage / Misc ($)</label><input type="number" id="baggageFees" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
+          <div class="field"><label>Total Air Costs</label><div class="output" id="totalAirCosts">$0.00</div></div>
+        </div>
+
+        <hr class="divider">
+        <div class="field-inline">
+          <div class="field"><label>Buffer for Overages (%)</label><input type="number" id="flyBuffer" class="input-yellow" value="10" min="0" max="100" step="1" oninput="recalc()"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section">
+    <div class="section-header"><h2>Cost Summary</h2><span class="tag">Results</span></div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:.85rem;font-weight:700;margin-bottom:.6rem">Driving</h3>
+          <div class="summary-row">
+            <div class="stat-card"><div class="stat-label">Per Diem & Logistics</div><div class="stat-value blue" id="sumDrivePerDiem">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Labor for Travel</div><div class="stat-value blue" id="sumDriveLabor">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Vehicle Costs</div><div class="stat-value blue" id="sumDriveMileage">$0</div></div>
+          </div>
+          <div class="summary-row" style="margin-top:.5rem">
+            <div class="stat-card"><div class="stat-label">Total Travel Costs</div><div class="stat-value blue" id="sumDriveTotal">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Avg Cost/Day</div><div class="stat-value blue" id="sumDrivePerDay">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Avg/Day/Person</div><div class="stat-value blue" id="sumDrivePerDayPerson">$0</div></div>
+          </div>
+          <div class="summary-row" style="margin-top:.5rem">
+            <div class="stat-card highlight"><div class="stat-label">Charge/Day (w/ Buffer)</div><div class="stat-value green" id="sumDriveChargeDay">$0</div></div>
+            <div class="stat-card highlight"><div class="stat-label">Total to Charge</div><div class="stat-value green" id="sumDriveChargeTotal">$0</div></div>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size:.85rem;font-weight:700;margin-bottom:.6rem">Flying</h3>
+          <div class="summary-row">
+            <div class="stat-card"><div class="stat-label">Per Diem & Logistics</div><div class="stat-value blue" id="sumFlyPerDiem">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Labor for Travel</div><div class="stat-value blue" id="sumFlyLabor">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Air/Rental Costs</div><div class="stat-value blue" id="sumFlyAir">$0</div></div>
+          </div>
+          <div class="summary-row" style="margin-top:.5rem">
+            <div class="stat-card"><div class="stat-label">Total Travel Costs</div><div class="stat-value blue" id="sumFlyTotal">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Avg Cost/Day</div><div class="stat-value blue" id="sumFlyPerDay">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Avg/Day/Person</div><div class="stat-value blue" id="sumFlyPerDayPerson">$0</div></div>
+          </div>
+          <div class="summary-row" style="margin-top:.5rem">
+            <div class="stat-card highlight"><div class="stat-label">Charge/Day (w/ Buffer)</div><div class="stat-value green" id="sumFlyChargeDay">$0</div></div>
+            <div class="stat-card highlight"><div class="stat-label">Total to Charge</div><div class="stat-value green" id="sumFlyChargeTotal">$0</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2 class="collapsible-toggle collapsed" onclick="toggleCollapse(this)">Employee Rate Reference</h2>
+      <span class="tag">5-Day / 12hr Schedule</span>
+    </div>
+    <div class="section-body collapsible-content collapsed" id="rateTableSection">
+      <table class="rate-table">
+        <thead><tr><th>Base Rate</th><th>Burden RT (1.44x)</th><th>RT Cost (8hr)</th><th>Burden OT (1.68x)</th><th>OT Cost (4hr)</th><th>12-Hr Day</th><th>Hrly Avg</th></tr></thead>
+        <tbody id="rateTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><h2>Notes</h2></div>
+    <div class="section-body">
+      <textarea class="notes-area" id="notes" placeholder="Project-specific notes..." oninput="recalc()"></textarea>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2 class="collapsible-toggle collapsed" onclick="toggleCollapse(this)">Saved Defaults</h2>
+      <span class="tag">Persists in Browser</span>
+    </div>
+    <div class="section-body collapsible-content collapsed" id="defaultsSection">
+      <p style="font-size:.8rem;color:var(--text2);margin-bottom:.75rem">Save the current field values (Rates, Logistics, Buffers) as your defaults. When you reset the form, it will use these instead of the factory presets. Project name, Zip Code, and notes are not included in defaults.</p>
+      <div class="defaults-bar">
+        <button class="btn btn-primary btn-small" onclick="saveDefaults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Current as Defaults</button>
+        <button class="btn btn-danger btn-small" onclick="clearDefaults()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Clear Saved Defaults</button>
+        <span class="defaults-status" id="defaultsStatus"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Fresh Tech Travel Cost Estimator &middot; Data lives in the URL &middot; Bookmark or share to save</div>
+<div class="toast" id="toast"></div>
+<script id="embedded-state" type="application/json"></script>
+<script>
+const RATES=[28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50];
+const RT_MULT=1.44, OT_MULT=1.68;
+const LS_KEY='ft-travel-defaults';
+const LS_THEME='ft-travel-theme';
+
+const FACTORY_DEFAULTS={
+  zipCode:'',projectName:'',daysOnSite:'1',totalPeople:'1',
+  gsaUrl:'https://www.gsa.gov/travel/plan-book/per-diem-rates',
+  hotelCost:'0',perDiemFood:'75',
+  freightCost:'0',miscSupplies:'50',trailerCost:'0',
+  driveRateSelect:'',driveCustomRate:'',driveTravelRateOverride:'25',
+  driveHoursRT:'0',driveOTSameAsRT:false,driveHoursOT:'0',driveHoursLoad:'0',
+  milesSites:'0',milesHD:'0',milesDinner:'0',mileageRate:'0.70',totalVehicles:'1',truckRollFee:'25',driveBuffer:'10',
+  flyRateSelect:'',flyCustomRate:'',flyTravelRateOverride:'25',
+  flyHoursRT:'0',flyOTSameAsRT:false,flyHoursOT:'0',flyHoursLoad:'0',
+  airfare:'0',rentalVehicleCost:'0',airportParking:'36',baggageFees:'0',flyBuffer:'10',
+  notes:''
+};
+
+const SERIALIZED_FIELDS=[
+  'zipCode','projectName','daysOnSite','totalPeople','gsaUrl','hotelCost','perDiemFood',
+  'freightCost','miscSupplies','trailerCost',
+  'driveRateSelect','driveCustomRate','driveTravelRateOverride','driveHoursRT','driveHoursOT','driveHoursLoad',
+  'milesSites','milesHD','milesDinner','mileageRate','totalVehicles','truckRollFee','driveBuffer',
+  'flyRateSelect','flyCustomRate','flyTravelRateOverride','flyHoursRT','flyHoursOT','flyHoursLoad',
+  'airfare','rentalVehicleCost','airportParking','baggageFees','flyBuffer',
+  'notes'
+];
+const CHECKBOX_FIELDS=['driveOTSameAsRT','flyOTSameAsRT','driveUseTravelRate','flyUseTravelRate'];
+
+function $(id){return document.getElementById(id)}
+function v(id){const el=$(id);if(!el)return 0;if(el.type==='checkbox')return el.checked;if(el.type==='number')return parseFloat(el.value)||0;return el.value}
+function fmt(n){return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function fmtInt(n){return '$'+Math.round(n).toLocaleString()}
+
+// Theme
+const SUN_SVG='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+const MOON_SVG='<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+
+function setTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  $('themeIcon').innerHTML=theme==='dark'?MOON_SVG:SUN_SVG;
+  try{localStorage.setItem(LS_THEME,theme)}catch(e){}
+}
+function toggleTheme(){
+  const current=document.documentElement.getAttribute('data-theme');
+  setTheme(current==='dark'?'light':'dark');
+}
+function initTheme(){
+  const saved=localStorage.getItem(LS_THEME);
+  if(saved){setTheme(saved);return}
+  if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)setTheme('light');
+  else setTheme('dark');
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{
+  if(!localStorage.getItem(LS_THEME))setTheme(e.matches?'dark':'light');
+});
+
+// GSA API Lookup
+async function fetchGSARates(zip) {
+  const apiKey = 'BFqjA81ozFzcFJ9LaMJ5UN98CTijXrMZHWJAiq2W';
+  const year = new Date().getFullYear();
+  
+  showToast("Fetching GSA rates for " + zip + "...");
+
+  try {
+    const response = await fetch(`https://api.gsa.gov/travel/perdiem/v2/rates/zip/${zip}/year/${year}?api_key=${apiKey}`);
+    if (!response.ok) throw new Error("API returned status " + response.status);
+    
+    const data = await response.json();
+
+    if (data && data.rates && data.rates.length > 0) {
+      const rateInfo = data.rates[0];
+      const city = rateInfo.city || "";
+      const state = rateInfo.state || "";
+      const meals = rateInfo.rate[0].meals;
+
+      // Find the Max Lodging rate for the year to be safe against delays
+      let maxLodging = 0;
+      if(rateInfo.rate[0].months && rateInfo.rate[0].months.month) {
+          rateInfo.rate[0].months.month.forEach(m => {
+              if(m.value > maxLodging) maxLodging = m.value;
+          });
+      }
+
+      // Update UI
+      if(!$('projectName').value && city) $('projectName').value = `${city}, ${state}`;
+      if(maxLodging > 0) $('hotelCost').value = maxLodging;
+      if(meals > 0) $('perDiemFood').value = meals;
+      
+      const gsaSearchUrl = `https://www.gsa.gov/travel/plan-book/per-diem-rates/per-diem-rates-results?action=perdiems_report&fiscal_year=${year}&zip=${zip}`;
+      $('gsaUrl').value = gsaSearchUrl;
+      
+      showToast(`Success: Max rates for ${city} loaded.`);
+      recalc();
+    } else {
+      showToast("Zip not found in GSA database.");
+    }
+  } catch (error) {
+    console.error("GSA API Error:", error);
+    showToast("Error connecting to GSA. Please enter manually.");
+  }
+}
+
+// Dropdowns
+function buildDropdowns(){
+  ['driveRateSelect','flyRateSelect'].forEach(id=>{
+    const sel=$(id);
+    sel.innerHTML='<option value="">-- Select --</option>';
+    RATES.forEach(base=>{
+      const rt=(base*RT_MULT).toFixed(2),ot=(base*OT_MULT).toFixed(2);
+      sel.innerHTML+=`<option value="${base}">$${base}/hr  |  RT: $${rt}  |  OT: $${ot}</option>`;
+    });
+    sel.innerHTML+='<option value="custom">Custom...</option>';
+  });
+}
+
+function getBaseRate(prefix){
+  const selVal=$(prefix+'RateSelect').value;
+  if(selVal==='custom')return parseFloat($(prefix+'CustomRate').value)||0;
+  return parseFloat(selVal)||0;
+}
+
+function onRateSelect(prefix){
+  const selVal=$(prefix+'RateSelect').value;
+  const customRow=$(prefix+'CustomRow');
+  if(selVal==='custom'){
+    customRow.classList.add('visible');
+    onCustomRate(prefix);
+  }else{
+    customRow.classList.remove('visible');
+    recalc();
+  }
+}
+
+function onCustomRate(prefix){ recalc(); }
+
+function buildRateTable(){
+  const tbody=$('rateTableBody');tbody.innerHTML='';
+  RATES.forEach(base=>{
+    const brt=(base*RT_MULT).toFixed(2),rtCost=(brt*8).toFixed(2);
+    const bot=(base*OT_MULT).toFixed(2),otCost=(bot*4).toFixed(2);
+    const dayCost=(parseFloat(rtCost)+parseFloat(otCost)).toFixed(2);
+    const hrAvg=(dayCost/12).toFixed(2);
+    tbody.innerHTML+=`<tr><td>$${base}</td><td>$${brt}</td><td class="computed">$${rtCost}</td><td>$${bot}</td><td class="computed">$${otCost}</td><td class="computed">$${dayCost}</td><td class="computed">$${hrAvg}</td></tr>`;
+  });
+}
+
+function recalc(){
+  const days=v('daysOnSite'), people=v('totalPeople');
+  const hotel=v('hotelCost'), food=v('perDiemFood');
+  const hotelNights=Math.max(days-1,0);
+  const perDiemPerson=hotel*hotelNights+food*days;
+  
+  $('hotelNights').textContent=hotelNights;
+  $('totalPerDiemPerson').textContent=fmt(perDiemPerson);
+
+  // Sync OT checkboxes
+  if(v('driveOTSameAsRT')){ $('driveHoursOT').value=$('driveHoursRT').value; $('driveHoursOT').disabled=true; } else { $('driveHoursOT').disabled=false; }
+  if(v('flyOTSameAsRT')){ $('flyHoursOT').value=$('flyHoursRT').value; $('flyHoursOT').disabled=true; } else { $('flyHoursOT').disabled=false; }
+
+  // Cargo & Logistics Base Costs
+  const freight = v('freightCost');
+  const trailer = v('trailerCost');
+  const supplies = v('miscSupplies');
+
+  // --- DRIVING MATH ---
+  const dBase = getBaseRate('drive');
+  const driveUseTrvl = v('driveUseTravelRate');
+  const dHRT = driveUseTrvl ? v('driveTravelRateOverride') : dBase * RT_MULT;
+  const dHOT = driveUseTrvl ? v('driveTravelRateOverride') : dBase * OT_MULT;
+  
+  $('driveHourlyRTDisplay').textContent = (dBase > 0 || driveUseTrvl) ? '$'+dHRT.toFixed(2) : '--';
+  $('driveHourlyOTDisplay').textContent = (dBase > 0 || driveUseTrvl) ? '$'+dHOT.toFixed(2) : '--';
+  
+  const dRT = dHRT * v('driveHoursRT');
+  const dOT = dHOT * v('driveHoursOT');
+  const dLoad = (dBase * RT_MULT) * v('driveHoursLoad'); // Load is ALWAYS burdened Base Rate
+  const dLaborPerson = dRT + dOT + dLoad;
+  
+  $('driveLaborRT').textContent = fmt(dRT);
+  $('driveLaborOT').textContent = fmt(dOT);
+  $('driveLaborLoad').textContent = fmt(dLoad);
+  $('driveLaborTotal').textContent = fmt(dLaborPerson);
+
+  const milesRT = v('milesSites') * 2, milesHD = v('milesHD') * 2 * days, milesDin = v('milesDinner') * 2 * days;
+  const mileagePerVeh = (milesRT + milesHD + milesDin) * v('mileageRate');
+  const truckRollTot = v('truckRollFee') * v('totalVehicles');
+  const totalVehCost = (mileagePerVeh * v('totalVehicles')) + truckRollTot;
+  $('totalVehicleCost').textContent = fmt(totalVehCost);
+
+  const dPerDiem = people * perDiemPerson;
+  const dLabor = people * dLaborPerson;
+  const dLogisticsTotal = dPerDiem + supplies + trailer; 
+  const dTotal = dLogisticsTotal + dLabor + totalVehCost;
+  
+  const dPerDay = days > 0 ? dTotal / days : 0;
+  const dPerDayPerson = (days > 0 && people > 0) ? dPerDay / people : 0;
+  const dBuffer = v('driveBuffer') / 100;
+  const dChargeDay = dPerDay * (1 + dBuffer);
+  const dChargeTotal = dChargeDay * days;
+
+  $('sumDrivePerDiem').textContent = fmtInt(dLogisticsTotal);
+  $('sumDriveLabor').textContent = fmtInt(dLabor);
+  $('sumDriveMileage').textContent = fmtInt(totalVehCost);
+  $('sumDriveTotal').textContent = fmtInt(dTotal);
+  $('sumDrivePerDay').textContent = fmtInt(dPerDay);
+  $('sumDrivePerDayPerson').textContent = fmtInt(dPerDayPerson);
+  $('sumDriveChargeDay').textContent = fmtInt(dChargeDay);
+  $('sumDriveChargeTotal').textContent = fmtInt(dChargeTotal);
+
+
+  // --- FLYING MATH ---
+  const fBase = getBaseRate('fly');
+  const flyUseTrvl = v('flyUseTravelRate');
+  const fHRT = flyUseTrvl ? v('flyTravelRateOverride') : fBase * RT_MULT;
+  const fHOT = flyUseTrvl ? v('flyTravelRateOverride') : fBase * OT_MULT;
+  
+  $('flyHourlyRTDisplay').textContent = (fBase > 0 || flyUseTrvl) ? '$'+fHRT.toFixed(2) : '--';
+  $('flyHourlyOTDisplay').textContent = (fBase > 0 || flyUseTrvl) ? '$'+fHOT.toFixed(2) : '--';
+  
+  const fRT = fHRT * v('flyHoursRT');
+  const fOT = fHOT * v('flyHoursOT');
+  const fLoad = (fBase * RT_MULT) * v('flyHoursLoad'); // Prep is ALWAYS burdened Base Rate
+  const fLaborPerson = fRT + fOT + fLoad;
+  
+  $('flyLaborRT').textContent = fmt(fRT);
+  $('flyLaborOT').textContent = fmt(fOT);
+  $('flyLaborLoad').textContent = fmt(fLoad);
+  $('flyLaborTotal').textContent = fmt(fLaborPerson);
+
+  const airfareTot = v('airfare') * people;
+  const rentalTot = v('rentalVehicleCost') * days;
+  const parkTot = v('airportParking') * people;
+  const bagTot = v('baggageFees');
+  const airTotal = airfareTot + rentalTot + parkTot + bagTot;
+  $('totalAirCosts').textContent = fmt(airTotal);
+
+  const fPerDiem = people * perDiemPerson;
+  const fLabor = people * fLaborPerson;
+  const fLogisticsTotal = fPerDiem + supplies + freight;
+  const fTotal = fLogisticsTotal + fLabor + airTotal;
+  
+  const fPerDay = days > 0 ? fTotal / days : 0;
+  const fPerDayPerson = (days > 0 && people > 0) ? fPerDay / people : 0;
+  const fBuffer = v('flyBuffer') / 100;
+  const fChargeDay = fPerDay * (1 + fBuffer);
+  const fChargeTotal = fChargeDay * days;
+
+  $('sumFlyPerDiem').textContent = fmtInt(fLogisticsTotal);
+  $('sumFlyLabor').textContent = fmtInt(fLabor);
+  $('sumFlyAir').textContent = fmtInt(airTotal);
+  $('sumFlyTotal').textContent = fmtInt(fTotal);
+  $('sumFlyPerDay').textContent = fmtInt(fPerDay);
+  $('sumFlyPerDayPerson').textContent = fmtInt(fPerDayPerson);
+  $('sumFlyChargeDay').textContent = fmtInt(fChargeDay);
+  $('sumFlyChargeTotal').textContent = fmtInt(fChargeTotal);
+
+  // Comparison
+  const cD = $('cmpDrive'), cF = $('cmpFly');
+  cD.textContent = fmtInt(dChargeTotal); cF.textContent = fmtInt(fChargeTotal);
+  $('cmpDriveSub').textContent = fmtInt(dChargeDay)+'/day'; $('cmpFlySub').textContent=fmtInt(fChargeDay)+'/day';
+  cD.className='compare-value'; cF.className='compare-value';
+  
+  if(dChargeTotal > 0 && fChargeTotal > 0) {
+    if(dChargeTotal <= fChargeTotal) { cD.classList.add('winner'); cF.classList.add('loser'); }
+    else { cF.classList.add('winner'); cD.classList.add('loser'); }
+  } else if(dChargeTotal > 0) { cD.classList.add('winner'); }
+  else if(fChargeTotal > 0) { cF.classList.add('winner'); }
+
+  document.title = v('projectName') ? `FT Travel - ${v('projectName')}` : 'FT Travel Cost Estimator';
+  saveToURL();
+}
+
+// URL Hash compression
+async function compress(str){
+  const bytes=new TextEncoder().encode(str);
+  const cs=new CompressionStream('deflate-raw');
+  const w=cs.writable.getWriter();w.write(bytes);w.close();
+  const chunks=[];const r=cs.readable.getReader();
+  while(true){const{done,value}=await r.read();if(done)break;chunks.push(value)}
+  const buf=new Uint8Array(chunks.reduce((a,c)=>a+c.length,0));
+  let off=0;chunks.forEach(c=>{buf.set(c,off);off+=c.length});
+  return btoa(String.fromCharCode(...buf)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function decompress(b64){
+  b64=b64.replace(/-/g,'+').replace(/_/g,'/');while(b64.length%4)b64+='=';
+  const bin=atob(b64);const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+  const ds=new DecompressionStream('deflate-raw');
+  const w=ds.writable.getWriter();w.write(bytes);w.close();
+  const chunks=[];const r=ds.readable.getReader();
+  while(true){const{done,value}=await r.read();if(done)break;chunks.push(value)}
+  const buf=new Uint8Array(chunks.reduce((a,c)=>a+c.length,0));
+  let off=0;chunks.forEach(c=>{buf.set(c,off);off+=c.length});
+  return new TextDecoder().decode(buf);
+}
+
+function getState(){
+  const s={};
+  SERIALIZED_FIELDS.forEach(id=>{const el=$(id);if(el)s[id]=el.value});
+  CHECKBOX_FIELDS.forEach(id=>{const el=$(id);if(el)s[id]=el.checked});
+  return JSON.stringify(s);
+}
+function setState(json){
+  try{
+    const s=JSON.parse(json);
+    SERIALIZED_FIELDS.forEach(id=>{const el=$(id);if(el&&s[id]!==undefined)el.value=s[id]});
+    CHECKBOX_FIELDS.forEach(id=>{const el=$(id);if(el&&s[id]!==undefined)el.checked=s[id]});
+  }catch(e){}
+}
+
+let saveTimer;
+function saveToURL(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{try{history.replaceState(null,'','#'+await compress(getState()))}catch(e){}},300);
+}
+async function loadFromURL(){
+  if(location.hash.length>1){
+    try{setState(await decompress(location.hash.slice(1)))}catch(e){}
+  }else{
+    const embedded=$('embedded-state').textContent.trim();
+    if(embedded){try{setState(embedded)}catch(e){}}
+  }
+  // Show custom row if custom was selected
+  ['drive','fly'].forEach(prefix=>{
+    if($(prefix+'RateSelect').value==='custom') $(prefix+'CustomRow').classList.add('visible');
+    onRateSelect(prefix);
+  });
+}
+
+function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+async function copyURL(){
+  try{await navigator.clipboard.writeText(location.origin+location.pathname+'#'+await compress(getState()));showToast('URL copied to clipboard')}catch(e){showToast('Could not copy URL')}
+}
+
+function getDefaults(){try{return JSON.parse(localStorage.getItem(LS_KEY))||FACTORY_DEFAULTS}catch(e){return FACTORY_DEFAULTS}}
+
+function resetForm(){
+  if(!confirm('Reset all fields to defaults?'))return;
+  const d=getDefaults();
+  SERIALIZED_FIELDS.forEach(id=>{const el=$(id);if(el)el.value=d[id]!==undefined?d[id]:(FACTORY_DEFAULTS[id]||'')});
+  CHECKBOX_FIELDS.forEach(id=>{const el=$(id);if(el)el.checked=d[id]!==undefined?d[id]:(FACTORY_DEFAULTS[id]||false)});
+  $('driveCustomRow').classList.remove('visible');$('flyCustomRow').classList.remove('visible');
+  history.replaceState(null,'',location.pathname);
+  onRateSelect('drive');onRateSelect('fly');recalc();showToast('Form reset');
+}
+
+function saveDefaults(){
+  const s={};
+  SERIALIZED_FIELDS.forEach(id=>{const el=$(id);if(el)s[id]=el.value});
+  CHECKBOX_FIELDS.forEach(id=>{const el=$(id);if(el)s[id]=el.checked});
+  s.projectName='';s.zipCode='';s.notes='';
+  try{localStorage.setItem(LS_KEY,JSON.stringify(s));showToast('Defaults saved');updateDefaultsStatus()}catch(e){showToast('Could not save defaults')}
+}
+function clearDefaults(){
+  if(!confirm('Clear saved defaults and revert to factory presets?'))return;
+  localStorage.removeItem(LS_KEY);showToast('Defaults cleared');updateDefaultsStatus();
+}
+function updateDefaultsStatus(){
+  const el=$('defaultsStatus');
+  if(localStorage.getItem(LS_KEY)){el.textContent='Custom defaults saved';el.className='defaults-status saved'}
+  else{el.textContent='Using factory defaults';el.className='defaults-status'}
+}
+
+function saveAsHTML(){
+  $('embedded-state').textContent=getState();
+  const blob=new Blob(['<!DOCTYPE html>'+document.documentElement.outerHTML],{type:'text/html'});
+  $('embedded-state').textContent='';
+  const name=v('projectName')?v('projectName').replace(/[^a-zA-Z0-9_-]/g,'_').replace(/_+/g,'_'):'';
+  const fname=name?`FT_Travel_Estimate_${name}.html`:'FT_Travel_Estimate.html';
+  if(window.showSaveFilePicker){
+    window.showSaveFilePicker({suggestedName:fname,types:[{accept:{'text/html':['.html']}}]}).then(h=>h.createWritable()).then(async w=>{await w.write(blob);await w.close();showToast('Saved')}).catch(()=>{});
+  }else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();URL.revokeObjectURL(a.href);showToast('Downloaded')}
+}
+
+function toggleCollapse(el){
+  el.classList.toggle('collapsed');
+  const content=el.closest('.section').querySelector('.collapsible-content');
+  if(content.classList.contains('collapsed')){content.classList.remove('collapsed');content.style.maxHeight=content.scrollHeight+'px'}
+  else{content.style.maxHeight=content.scrollHeight+'px';requestAnimationFrame(()=>{content.classList.add('collapsed');content.style.maxHeight='0'})}
+}
+
+function toggleInfo(){$('infoPanel').classList.toggle('open')}
+
+initTheme();buildDropdowns();buildRateTable();updateDefaultsStatus();loadFromURL();
+</script>
+
+</body>
+</html>
