@@ -229,7 +229,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
             <label>Zip Code (Auto GSA)</label>
             <input type="text" id="zipCode" class="input-yellow" placeholder="18015" maxlength="5" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
         </div>
-        <div class="field"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Bethlehem, PA" oninput="recalc()"></div>
+        <div class="field"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Pittsburgh, PA" oninput="recalc()"></div>
         <div class="field"><label>Total Days (Travel + On-Site)</label><input type="number" id="daysOnSite" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
         <div class="field"><label>Total People</label><input type="number" id="totalPeople" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
       </div>
