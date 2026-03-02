@@ -153,7 +153,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 }
 
 .info-panel{max-height:0;overflow:hidden;background:var(--bg2);border-bottom:1px solid var(--border);transition:max-height .35s ease}
-.info-panel.open{max-height:800px}
+.info-panel.open{max-height:1200px}
 .info-panel-inner{padding:1.25rem 1.5rem}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:700px){.info-grid{grid-template-columns:1fr}}
@@ -193,6 +193,14 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
       <div class="info-block">
         <h3>Truck Rolls & Defaults</h3>
         <p>Vehicle costs can include a flat <strong>Truck Roll Fee</strong> to account for wear and tear. If you adjust the defaults (like your preferred Truck Roll fee or Buffers), click <strong>Save Current as Defaults</strong> at the bottom of the page.</p>
+      </div>
+      <div class="info-block">
+        <h3>Round Trip Toggle</h3>
+        <p>Each estimate side (Driving and Flying) has its own <strong>Round Trip</strong> checkbox. For <strong>Driving</strong>, it doubles RT/OT travel labor hours and site-to-site mileage. For <strong>Flying</strong>, it doubles RT/OT travel labor hours, airfare, and baggage/misc fees, and changes airport parking to <strong>Rate x People x Total Days</strong>. Load/Unload and Pack/Prep hours are never doubled since those are one-time costs.</p>
+      </div>
+      <div class="info-block">
+        <h3>Total Labor / Person</h3>
+        <p>The <strong>Total Labor/Person</strong> field shows the combined labor cost for a single technician (RT + OT + Load/Prep). The <strong>Cost Summary</strong> section then multiplies this by <strong>Total People</strong> to produce the "Labor for Travel" line item.</p>
       </div>
     </div>
     <button class="btn btn-secondary btn-small" onclick="toggleInfo()" style="margin-top:.75rem">Close</button>
@@ -265,6 +273,10 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
     <div class="section">
       <div class="section-header"><h2>Driving Estimate</h2><span class="tag">Option A</span></div>
       <div class="section-body">
+        <div class="toggle-row" style="background:var(--bg3); padding:.5rem .75rem; border-radius:6px; border:1px solid var(--border); margin-bottom:.85rem;">
+          <input type="checkbox" id="driveRoundTrip" onchange="recalc()">
+          <label for="driveRoundTrip">Round Trip (doubles travel labor & mileage)</label>
+        </div>
         <h3 style="font-size:.8rem;margin-bottom:.75rem;color:var(--text2)">Labor Costs</h3>
         <div class="field"><label>Employee Base Rate</label>
           <select id="driveRateSelect" class="input-yellow" onchange="onRateSelect('drive')">
@@ -328,6 +340,10 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
     <div class="section">
       <div class="section-header"><h2>Flying Estimate</h2><span class="tag">Option B</span></div>
       <div class="section-body">
+        <div class="toggle-row" style="background:var(--bg3); padding:.5rem .75rem; border-radius:6px; border:1px solid var(--border); margin-bottom:.85rem;">
+          <input type="checkbox" id="flyRoundTrip" onchange="recalc()">
+          <label for="flyRoundTrip">Round Trip (doubles travel labor, airfare & baggage)</label>
+        </div>
         <h3 style="font-size:.8rem;margin-bottom:.75rem;color:var(--text2)">Labor Costs</h3>
         <div class="field"><label>Employee Base Rate</label>
           <select id="flyRateSelect" class="input-yellow" onchange="onRateSelect('fly')">
@@ -497,7 +513,7 @@ const SERIALIZED_FIELDS=[
   'airfare','rentalVehicleCost','airportParking','baggageFees','flyBuffer',
   'notes'
 ];
-const CHECKBOX_FIELDS=['driveOTSameAsRT','flyOTSameAsRT','driveUseTravelRate','flyUseTravelRate'];
+const CHECKBOX_FIELDS=['driveOTSameAsRT','flyOTSameAsRT','driveUseTravelRate','flyUseTravelRate','driveRoundTrip','flyRoundTrip'];
 
 function $(id){return document.getElementById(id)}
 function v(id){const el=$(id);if(!el)return 0;if(el.type==='checkbox')return el.checked;if(el.type==='number')return parseFloat(el.value)||0;return el.value}
@@ -648,9 +664,10 @@ function recalc(){
   $('driveHourlyRTDisplay').textContent = dBase > 0 ? '$'+dHRT.toFixed(2) : '--';
   $('driveHourlyOTDisplay').textContent = dBase > 0 ? '$'+dHOT.toFixed(2) : '--';
   
-  const dRT = dHRT * v('driveHoursRT');
-  const dOT = dHOT * v('driveHoursOT');
-  const dLoad = (dBase * RT_MULT) * v('driveHoursLoad'); // Load is ALWAYS burdened Base Rate
+  const dTripMult = v('driveRoundTrip') ? 2 : 1;
+  const dRT = dHRT * v('driveHoursRT') * dTripMult;
+  const dOT = dHOT * v('driveHoursOT') * dTripMult;
+  const dLoad = (dBase * RT_MULT) * v('driveHoursLoad'); // Load is ALWAYS burdened Base Rate (not doubled)
   const dLaborPerson = dRT + dOT + dLoad;
   
   $('driveLaborRT').textContent = fmt(dRT);
@@ -658,7 +675,7 @@ function recalc(){
   $('driveLaborLoad').textContent = fmt(dLoad);
   $('driveLaborTotal').textContent = fmt(dLaborPerson);
 
-  const milesRT = v('milesSites') * 2, milesHD = v('milesHD') * 2 * days, milesDin = v('milesDinner') * 2 * days;
+  const milesRT = v('milesSites') * 2 * dTripMult, milesHD = v('milesHD') * 2 * days, milesDin = v('milesDinner') * 2 * days;
   const mileagePerVeh = (milesRT + milesHD + milesDin) * v('mileageRate');
   const truckRollTot = v('truckRollFee') * v('totalVehicles');
   const totalVehCost = (mileagePerVeh * v('totalVehicles')) + truckRollTot;
@@ -698,9 +715,10 @@ function recalc(){
   $('flyHourlyRTDisplay').textContent = fBase > 0 ? '$'+fHRT.toFixed(2) : '--';
   $('flyHourlyOTDisplay').textContent = fBase > 0 ? '$'+fHOT.toFixed(2) : '--';
   
-  const fRT = fHRT * v('flyHoursRT');
-  const fOT = fHOT * v('flyHoursOT');
-  const fLoad = (fBase * RT_MULT) * v('flyHoursLoad'); // Prep is ALWAYS burdened Base Rate
+  const fTripMult = v('flyRoundTrip') ? 2 : 1;
+  const fRT = fHRT * v('flyHoursRT') * fTripMult;
+  const fOT = fHOT * v('flyHoursOT') * fTripMult;
+  const fLoad = (fBase * RT_MULT) * v('flyHoursLoad'); // Prep is ALWAYS burdened Base Rate (not doubled)
   const fLaborPerson = fRT + fOT + fLoad;
   
   $('flyLaborRT').textContent = fmt(fRT);
@@ -708,10 +726,10 @@ function recalc(){
   $('flyLaborLoad').textContent = fmt(fLoad);
   $('flyLaborTotal').textContent = fmt(fLaborPerson);
 
-  const airfareTot = v('airfare') * people;
+  const airfareTot = v('airfare') * people * fTripMult;
   const rentalTot = v('rentalVehicleCost') * days;
-  const parkTot = v('airportParking') * people;
-  const bagTot = v('baggageFees');
+  const parkTot = v('flyRoundTrip') ? v('airportParking') * people * days : v('airportParking') * people;
+  const bagTot = v('baggageFees') * fTripMult;
   const airTotal = airfareTot + rentalTot + parkTot + bagTot;
   $('totalAirCosts').textContent = fmt(airTotal);
 
