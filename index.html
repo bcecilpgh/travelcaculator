@@ -2,9 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>FT Travel Cost Estimator</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -39,7 +42,7 @@
 html{font-size:14px;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
 body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
-.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;color:#f0f6fc}
+.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:1rem 1.5rem;padding-top:calc(1rem + env(safe-area-inset-top,0px));padding-left:calc(1.5rem + env(safe-area-inset-left,0px));padding-right:calc(1.5rem + env(safe-area-inset-right,0px));display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;color:#f0f6fc}
 .header h1{font-weight:900;font-size:1.4rem;letter-spacing:-.02em}
 .header h1 span{color:var(--green)}
 .header-actions{display:flex;gap:.5rem;flex-wrap:wrap}
@@ -60,7 +63,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .theme-toggle:hover{background:rgba(255,255,255,.1)}
 .theme-toggle svg{width:16px;height:16px}
 
-.container{max-width:1400px;margin:0 auto;padding:1.5rem}
+.container{max-width:1400px;margin:0 auto;padding:1.5rem;padding-left:calc(1.5rem + env(safe-area-inset-left,0px));padding-right:calc(1.5rem + env(safe-area-inset-right,0px))}
 .section{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:1.25rem;overflow:hidden;transition:background .2s,border-color .2s}
 .section-header{background:var(--bg3);padding:.6rem .875rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .2s}
 .section-header h2{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
@@ -69,6 +72,11 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .field-inline{flex-direction:column;gap:.85rem}
+  .header-actions{width:100%;justify-content:flex-end}
+  .rate-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
 
 .field{margin-bottom:.85rem}
 .field label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem;font-family:var(--font-mono)}
@@ -121,7 +129,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .notes-area{width:100%;min-height:100px;padding:.7rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-head);font-size:.85rem;resize:vertical;transition:background .2s,color .2s}
 .notes-area:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.15)}
 
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--toast-bg);color:var(--toast-text);padding:.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:.85rem;transform:translateY(100px);opacity:0;transition:all .3s;z-index:100;pointer-events:none}
+.toast{position:fixed;bottom:calc(1.5rem + env(safe-area-inset-bottom,0px));right:calc(1.5rem + env(safe-area-inset-right,0px));background:var(--toast-bg);color:var(--toast-text);padding:.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:.85rem;transform:translateY(100px);opacity:0;transition:all .3s;z-index:100;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 
 .collapsible-toggle{cursor:pointer;user-select:none}
@@ -144,7 +152,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .defaults-bar .defaults-status.saved{color:var(--green)}
 [data-theme="light"] .defaults-bar .defaults-status.saved{color:var(--green-dark)}
 
-.footer{text-align:center;padding:2rem 1rem 1.5rem;color:var(--text2);font-size:.7rem;font-family:var(--font-mono)}
+.footer{text-align:center;padding:2rem 1rem calc(1.5rem + env(safe-area-inset-bottom,0px));padding-left:calc(1rem + env(safe-area-inset-left,0px));padding-right:calc(1rem + env(safe-area-inset-right,0px));color:var(--text2);font-size:.7rem;font-family:var(--font-mono)}
 
 @media print{
   .header-actions,.btn,.toast,.compare-banner,.info-panel,.theme-toggle, .defaults-bar, .section-header .tag {display:none !important}
@@ -155,7 +163,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
 .info-panel{max-height:0;overflow:hidden;background:var(--bg2);border-bottom:1px solid var(--border);transition:max-height .35s ease}
 .info-panel.open{max-height:1200px}
-.info-panel-inner{padding:1.25rem 1.5rem}
+.info-panel-inner{padding:1.25rem 1.5rem;padding-left:calc(1.5rem + env(safe-area-inset-left,0px));padding-right:calc(1.5rem + env(safe-area-inset-right,0px))}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:700px){.info-grid{grid-template-columns:1fr}}
 .info-block h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text);margin-bottom:.35rem;font-family:var(--font-mono)}
