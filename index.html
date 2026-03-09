@@ -74,6 +74,9 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
 @media(max-width:600px){
   .field-inline{flex-direction:column;gap:.85rem}
+  .field-inline .field[style*="max-width"]{max-width:none !important}
+  .custom-rate-row.visible{flex-direction:column}
+  .toggle-row{flex-wrap:wrap}
   .header-actions{width:100%;justify-content:flex-end}
   .rate-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
@@ -155,7 +158,10 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .footer{text-align:center;padding:2rem 1rem calc(1.5rem + env(safe-area-inset-bottom,0px));padding-left:calc(1rem + env(safe-area-inset-left,0px));padding-right:calc(1rem + env(safe-area-inset-right,0px));color:var(--text2);font-size:.7rem;font-family:var(--font-mono)}
 
 @media print{
-  .header-actions,.btn,.toast,.compare-banner,.info-panel,.theme-toggle, .defaults-bar, .section-header .tag {display:none !important}
+  .header-actions,.btn,.toast,.info-panel,.theme-toggle, .defaults-bar, .section-header .tag {display:none !important}
+  .compare-banner{border-color:#ccc}
+  .compare-side .compare-value.winner{color:#000 !important;font-weight:900}
+  .compare-side .compare-value.loser{color:#999 !important}
   .container{padding:0}
   .section{break-inside:avoid}
   body { background: #fff !important; color: #000 !important; }
@@ -169,6 +175,12 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .info-block h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text);margin-bottom:.35rem;font-family:var(--font-mono)}
 .info-block p{font-size:.82rem;color:var(--text2);line-height:1.6}
 .info-block p strong{color:var(--text);font-weight:600}
+
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;padding:1rem}
+.confirm-overlay.open{opacity:1;pointer-events:auto}
+.confirm-dialog{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.5rem;max-width:340px;width:100%;text-align:center}
+.confirm-dialog p{font-size:.9rem;margin-bottom:1rem;color:var(--text);line-height:1.5}
+.confirm-actions{display:flex;gap:.5rem;justify-content:center}
 </style>
 </head>
 <body>
@@ -244,7 +256,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
       <div class="field-inline">
         <div class="field" style="max-width: 140px;">
             <label>Zip Code (Auto GSA)</label>
-            <input type="text" id="zipCode" class="input-yellow" placeholder="15221" maxlength="5" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
+            <input type="text" id="zipCode" class="input-yellow" placeholder="15221" maxlength="5" inputmode="numeric" pattern="[0-9]*" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
         </div>
         <div class="field"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Pittsburgh, PA" oninput="recalc()"></div>
         <div class="field"><label>Total Days (Travel + On-Site)</label><input type="number" id="daysOnSite" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
@@ -256,7 +268,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
   <div class="section">
     <div class="section-header"><h2>Per Diem &amp; Lodging</h2><span class="tag">Step 2</span></div>
     <div class="section-body">
-      <div class="field"><label>GSA Per Diem Reference</label><div style="display:flex;gap:.5rem"><input type="url" id="gsaUrl" class="input-yellow" value="https://www.gsa.gov/travel/plan-book/per-diem-rates" oninput="recalc()" style="flex:1"><button class="btn btn-secondary btn-small" onclick="window.open($('gsaUrl').value,'_blank')" style="white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in New Tab</button></div></div>
+      <div class="field"><label>GSA Per Diem Reference</label><div style="display:flex;gap:.5rem"><input type="url" id="gsaUrl" class="input-yellow" value="https://www.gsa.gov/travel/plan-book/per-diem-rates" readonly style="flex:1;cursor:default"><button class="btn btn-secondary btn-small" onclick="openGSAUrl()" style="white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in New Tab</button></div></div>
       <div class="field-inline">
         <div class="field"><label>Hotel Cost/Night ($)</label><input type="number" id="hotelCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
         <div class="field"><label>Per Diem Food/Day ($)</label><input type="number" id="perDiemFood" class="input-yellow" value="75" min="0" step="1" oninput="recalc()"></div>
@@ -492,6 +504,15 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
 <div class="footer">Fresh Tech Travel Cost Estimator &middot; Data lives in the URL &middot; Bookmark or share to save</div>
 <div class="toast" id="toast"></div>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+    <p id="confirmMsg"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary btn-small" id="confirmNo">Cancel</button>
+      <button class="btn btn-danger btn-small" id="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
 <script id="embedded-state" type="application/json"></script>
 <script>
 const RATES=[28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50];
@@ -569,12 +590,14 @@ async function fetchGSARates(zip) {
       const rateInfo = data.rates[0];
       const city = rateInfo.city || "";
       const state = rateInfo.state || "";
-      const meals = rateInfo.rate[0].meals;
+      const rateData = rateInfo.rate && rateInfo.rate[0];
+      if (!rateData) { showToast("No rate data found for this zip."); return; }
+      const meals = rateData.meals || 0;
 
       // Find the Max Lodging rate for the year to be safe against delays
       let maxLodging = 0;
-      if(rateInfo.rate[0].months && rateInfo.rate[0].months.month) {
-          rateInfo.rate[0].months.month.forEach(m => {
+      if(rateData.months && rateData.months.month) {
+          rateData.months.month.forEach(m => {
               if(m.value > maxLodging) maxLodging = m.value;
           });
       }
@@ -710,7 +733,6 @@ function recalc(){
   $('sumDriveChargeDay').textContent = fmtInt(dChargeDay);
   $('sumDriveChargeTotal').textContent = fmtInt(dChargeTotal);
 
-
   // --- FLYING MATH ---
   const fBase = getBaseRate('fly');
   const flyUseTrvl = v('flyUseTravelRate');
@@ -834,7 +856,8 @@ async function loadFromURL(){
   });
 }
 
-function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+let toastTimer;
+function showToast(msg){const t=$('toast');clearTimeout(toastTimer);t.classList.remove('show');void t.offsetWidth;t.textContent=msg;t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),2500)}
 
 async function copyURL(){
   try{await navigator.clipboard.writeText(location.origin+location.pathname+'#'+await compress(getState()));showToast('URL copied to clipboard')}catch(e){showToast('Could not copy URL')}
@@ -842,8 +865,8 @@ async function copyURL(){
 
 function getDefaults(){try{return JSON.parse(localStorage.getItem(LS_KEY))||FACTORY_DEFAULTS}catch(e){return FACTORY_DEFAULTS}}
 
-function resetForm(){
-  if(!confirm('Reset all fields to defaults?'))return;
+async function resetForm(){
+  if(!await showConfirm('Reset all fields to defaults?'))return;
   const d=getDefaults();
   SERIALIZED_FIELDS.forEach(id=>{const el=$(id);if(el)el.value=d[id]!==undefined?d[id]:(FACTORY_DEFAULTS[id]||'')});
   CHECKBOX_FIELDS.forEach(id=>{const el=$(id);if(el)el.checked=d[id]!==undefined?d[id]:(FACTORY_DEFAULTS[id]||false)});
@@ -859,8 +882,8 @@ function saveDefaults(){
   s.projectName='';s.zipCode='';s.notes='';
   try{localStorage.setItem(LS_KEY,JSON.stringify(s));showToast('Defaults saved');updateDefaultsStatus()}catch(e){showToast('Could not save defaults')}
 }
-function clearDefaults(){
-  if(!confirm('Clear saved defaults and revert to factory presets?'))return;
+async function clearDefaults(){
+  if(!await showConfirm('Clear saved defaults and revert to factory presets?'))return;
   localStorage.removeItem(LS_KEY);showToast('Defaults cleared');updateDefaultsStatus();
 }
 function updateDefaultsStatus(){
@@ -888,6 +911,21 @@ function toggleCollapse(el){
 }
 
 function toggleInfo(){$('infoPanel').classList.toggle('open')}
+
+function showConfirm(msg){
+  return new Promise(resolve=>{
+    $('confirmMsg').textContent=msg;
+    $('confirmOverlay').classList.add('open');
+    $('confirmYes').onclick=()=>{$('confirmOverlay').classList.remove('open');resolve(true)};
+    $('confirmNo').onclick=()=>{$('confirmOverlay').classList.remove('open');resolve(false)};
+  });
+}
+
+function openGSAUrl(){
+  const url=$('gsaUrl').value;
+  if(url&&url.startsWith('https://'))window.open(url,'_blank');
+  else showToast('No valid GSA URL available');
+}
 
 initTheme();buildDropdowns();buildRateTable();updateDefaultsStatus();loadFromURL();
 </script>
