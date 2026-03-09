@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /c/Users/brandon.cecil/Documents/GitHub/travelcaculator log --oneline -10)",
+      "Bash(git config --list)"
+    ]
+  }
+}
