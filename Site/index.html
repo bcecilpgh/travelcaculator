@@ -2,8 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>FT Travel Cost Estimator</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -38,7 +42,7 @@
 html{font-size:14px;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
 body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
-.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;color:#f0f6fc}
+.header{background:var(--header-bg);border-bottom:1px solid var(--border);padding:1rem 1.5rem;padding-top:calc(1rem + env(safe-area-inset-top,0px));padding-left:calc(1.5rem + env(safe-area-inset-left,0px));padding-right:calc(1.5rem + env(safe-area-inset-right,0px));display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;color:#f0f6fc}
 .header h1{font-weight:900;font-size:1.4rem;letter-spacing:-.02em}
 .header h1 span{color:var(--green)}
 .header-actions{display:flex;gap:.5rem;flex-wrap:wrap}
@@ -59,7 +63,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .theme-toggle:hover{background:rgba(255,255,255,.1)}
 .theme-toggle svg{width:16px;height:16px}
 
-.container{max-width:1400px;margin:0 auto;padding:1.5rem}
+.container{max-width:1400px;margin:0 auto;padding:1.5rem;padding-left:calc(1.5rem + env(safe-area-inset-left,0px));padding-right:calc(1.5rem + env(safe-area-inset-right,0px))}
 .section{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:1.25rem;overflow:hidden;transition:background .2s,border-color .2s}
 .section-header{background:var(--bg3);padding:.6rem .875rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;transition:background .2s}
 .section-header h2{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
@@ -68,6 +72,14 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .field-inline{flex-direction:column;gap:.85rem}
+  .field-inline .field[style*="max-width"]{max-width:none !important}
+  .custom-rate-row.visible{flex-direction:column}
+  .toggle-row{flex-wrap:wrap}
+  .header-actions{width:100%;justify-content:flex-end}
+  .rate-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
 
 .field{margin-bottom:.85rem}
 .field label{display:block;font-size:.75rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem;font-family:var(--font-mono)}
@@ -120,7 +132,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .notes-area{width:100%;min-height:100px;padding:.7rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-head);font-size:.85rem;resize:vertical;transition:background .2s,color .2s}
 .notes-area:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.15)}
 
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--toast-bg);color:var(--toast-text);padding:.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:.85rem;transform:translateY(100px);opacity:0;transition:all .3s;z-index:100;pointer-events:none}
+.toast{position:fixed;bottom:calc(1.5rem + env(safe-area-inset-bottom,0px));right:calc(1.5rem + env(safe-area-inset-right,0px));background:var(--toast-bg);color:var(--toast-text);padding:.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:.85rem;transform:translateY(100px);opacity:0;transition:all .3s;z-index:100;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 
 .collapsible-toggle{cursor:pointer;user-select:none}
@@ -143,10 +155,13 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 .defaults-bar .defaults-status.saved{color:var(--green)}
 [data-theme="light"] .defaults-bar .defaults-status.saved{color:var(--green-dark)}
 
-.footer{text-align:center;padding:2rem 1rem 1.5rem;color:var(--text2);font-size:.7rem;font-family:var(--font-mono)}
+.footer{text-align:center;padding:2rem 1rem calc(1.5rem + env(safe-area-inset-bottom,0px));padding-left:calc(1rem + env(safe-area-inset-left,0px));padding-right:calc(1rem + env(safe-area-inset-right,0px));color:var(--text2);font-size:.7rem;font-family:var(--font-mono)}
 
 @media print{
-  .header-actions,.btn,.toast,.compare-banner,.info-panel,.theme-toggle, .defaults-bar, .section-header .tag {display:none !important}
+  .header-actions,.btn,.toast,.info-panel,.theme-toggle, .defaults-bar, .section-header .tag, .jb-toggle-row, .jb-dropdown, #jetbuiltSelected {display:none !important}
+  .compare-banner{border-color:#ccc}
+  .compare-side .compare-value.winner{color:#000 !important;font-weight:900}
+  .compare-side .compare-value.loser{color:#999 !important}
   .container{padding:0}
   .section{break-inside:avoid}
   body { background: #fff !important; color: #000 !important; }
@@ -154,12 +169,34 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
 .info-panel{max-height:0;overflow:hidden;background:var(--bg2);border-bottom:1px solid var(--border);transition:max-height .35s ease}
 .info-panel.open{max-height:1200px}
-.info-panel-inner{padding:1.25rem 1.5rem}
+.info-panel-inner{padding:1.25rem 1.5rem;padding-left:calc(1.5rem + env(safe-area-inset-left,0px));padding-right:calc(1.5rem + env(safe-area-inset-right,0px))}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:700px){.info-grid{grid-template-columns:1fr}}
 .info-block h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text);margin-bottom:.35rem;font-family:var(--font-mono)}
 .info-block p{font-size:.82rem;color:var(--text2);line-height:1.6}
 .info-block p strong{color:var(--text);font-weight:600}
+
+.jb-section{overflow:visible}
+.jb-toggle-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;user-select:none;background:var(--bg3);padding:.5rem .75rem;border-radius:6px;border:1px solid var(--border)}
+.jb-toggle-row input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+.jb-toggle-row label{font-size:.75rem;color:var(--text2);cursor:pointer;font-weight:600}
+.jb-field-wrap{position:relative}
+.jb-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,.3);display:none}
+.jb-dropdown.open{display:block}
+.jb-dropdown-item{padding:.5rem .7rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--border);transition:background .1s}
+.jb-dropdown-item:hover,.jb-dropdown-item.active{background:var(--bg3)}
+.jb-dropdown-item:last-child{border-bottom:none}
+.jb-dropdown-item .jb-client{font-size:.7rem;color:var(--text2);display:block}
+.jb-dropdown-empty{padding:.5rem .7rem;font-size:.8rem;color:var(--text2);font-style:italic}
+#jetbuiltSelected{display:none;font-size:.7rem;color:var(--text2);margin-top:.2rem;align-items:center;gap:.3rem}
+#jetbuiltSelected.visible{display:flex}
+#jetbuiltSelected .jb-clear{background:none;border:none;color:var(--red);cursor:pointer;font-size:.75rem;font-weight:700;padding:0 .25rem}
+
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;padding:1rem}
+.confirm-overlay.open{opacity:1;pointer-events:auto}
+.confirm-dialog{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.5rem;max-width:340px;width:100%;text-align:center}
+.confirm-dialog p{font-size:.9rem;margin-bottom:1rem;color:var(--text);line-height:1.5}
+.confirm-actions{display:flex;gap:.5rem;justify-content:center}
 </style>
 </head>
 <body>
@@ -170,6 +207,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
     <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Toggle light/dark mode"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
     <button class="btn btn-secondary btn-small" onclick="toggleInfo()" id="infoBtn" title="How this works"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Info</button>
     <button class="btn btn-secondary btn-small" onclick="copyURL()" title="Copy shareable URL"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Copy URL</button>
+    <button class="btn btn-primary btn-small" id="saveToProjectBtn" onclick="saveToJetbuilt()" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Save to Project</button>
     <button class="btn btn-secondary btn-small" onclick="resetForm()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Reset</button>
     <button class="btn btn-primary btn-small" onclick="saveAsHTML()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Save HTML</button>
   </div>
@@ -229,15 +267,21 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
     </div>
   </div>
 
-  <div class="section">
+  <div class="section jb-section">
     <div class="section-header"><h2>Project Info</h2><span class="tag">Step 1</span></div>
     <div class="section-body">
+      <div class="jb-toggle-row">
+        <input type="checkbox" id="jetbuiltEnabled" onchange="toggleJetbuilt()">
+        <label for="jetbuiltEnabled">Link to Jetbuilt Project</label>
+      </div>
+      <input type="hidden" id="jetbuiltProjectId">
+      <input type="hidden" id="jetbuiltProjectName">
       <div class="field-inline">
         <div class="field" style="max-width: 140px;">
             <label>Zip Code (Auto GSA)</label>
-            <input type="text" id="zipCode" class="input-yellow" placeholder="15221" maxlength="5" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
+            <input type="text" id="zipCode" class="input-yellow" placeholder="15221" maxlength="5" inputmode="numeric" pattern="[0-9]*" oninput="if(this.value.length===5) fetchGSARates(this.value); recalc();">
         </div>
-        <div class="field"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Pittsburgh, PA" oninput="recalc()"></div>
+        <div class="field jb-field-wrap"><label>Project / Location Name</label><input type="text" id="projectName" class="input-yellow" placeholder="e.g. Pittsburgh, PA" oninput="recalc()" autocomplete="off"><div class="jb-dropdown" id="jbDropdown"></div><div id="jetbuiltSelected"><span id="jbLinkedLabel"></span><button class="jb-clear" onclick="clearJetbuiltProject()" title="Unlink project">&times;</button></div></div>
         <div class="field"><label>Total Days (Travel + On-Site)</label><input type="number" id="daysOnSite" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
         <div class="field"><label>Total People</label><input type="number" id="totalPeople" class="input-yellow" value="1" min="1" step="1" oninput="recalc()"></div>
       </div>
@@ -247,7 +291,7 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
   <div class="section">
     <div class="section-header"><h2>Per Diem &amp; Lodging</h2><span class="tag">Step 2</span></div>
     <div class="section-body">
-      <div class="field"><label>GSA Per Diem Reference</label><div style="display:flex;gap:.5rem"><input type="url" id="gsaUrl" class="input-yellow" value="https://www.gsa.gov/travel/plan-book/per-diem-rates" oninput="recalc()" style="flex:1"><button class="btn btn-secondary btn-small" onclick="window.open($('gsaUrl').value,'_blank')" style="white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in New Tab</button></div></div>
+      <div class="field"><label>GSA Per Diem Reference</label><div style="display:flex;gap:.5rem"><input type="url" id="gsaUrl" class="input-yellow" value="https://www.gsa.gov/travel/plan-book/per-diem-rates" readonly style="flex:1;cursor:default"><button class="btn btn-secondary btn-small" onclick="openGSAUrl()" style="white-space:nowrap"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open in New Tab</button></div></div>
       <div class="field-inline">
         <div class="field"><label>Hotel Cost/Night ($)</label><input type="number" id="hotelCost" class="input-yellow" value="0" min="0" step="1" oninput="recalc()"></div>
         <div class="field"><label>Per Diem Food/Day ($)</label><input type="number" id="perDiemFood" class="input-yellow" value="75" min="0" step="1" oninput="recalc()"></div>
@@ -483,15 +527,29 @@ body{font-family:var(--font-head);line-height:1.5;min-height:100vh;padding:0}
 
 <div class="footer">Fresh Tech Travel Cost Estimator &middot; Data lives in the URL &middot; Bookmark or share to save</div>
 <div class="toast" id="toast"></div>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+    <p id="confirmMsg"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary btn-small" id="confirmNo">Cancel</button>
+      <button class="btn btn-danger btn-small" id="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
 <script id="embedded-state" type="application/json"></script>
 <script>
 const RATES=[28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50];
 const RT_MULT=1.44, OT_MULT=1.68;
 const LS_KEY='ft-travel-defaults';
 const LS_THEME='ft-travel-theme';
+const JETBUILT_PROXY='';
+const JB_DEBOUNCE=350;
+const JB_MIN_CHARS=3;
+let jbSearchTimer=null;
+let jbActiveIndex=-1;
 
 const FACTORY_DEFAULTS={
-  zipCode:'',projectName:'',daysOnSite:'1',totalPeople:'1',
+  zipCode:'',projectName:'',daysOnSite:'1',totalPeople:'1',jetbuiltProjectId:'',jetbuiltProjectName:'',jetbuiltEnabled:false,
   gsaUrl:'https://www.gsa.gov/travel/plan-book/per-diem-rates',
   hotelCost:'0',perDiemFood:'75',
   freightCost:'0',miscSupplies:'0',trailerCost:'0',
@@ -505,7 +563,7 @@ const FACTORY_DEFAULTS={
 };
 
 const SERIALIZED_FIELDS=[
-  'zipCode','projectName','daysOnSite','totalPeople','gsaUrl','hotelCost','perDiemFood',
+  'zipCode','projectName','daysOnSite','totalPeople','jetbuiltProjectId','jetbuiltProjectName','gsaUrl','hotelCost','perDiemFood',
   'freightCost','miscSupplies','trailerCost',
   'driveRateSelect','driveCustomRate','driveHoursRT','driveHoursOT','driveHoursLoad',
   'milesSites','milesHD','milesDinner','mileageRate','totalVehicles','truckRollFee','driveBuffer',
@@ -513,7 +571,7 @@ const SERIALIZED_FIELDS=[
   'airfare','rentalVehicleCost','airportParking','baggageFees','flyBuffer',
   'notes'
 ];
-const CHECKBOX_FIELDS=['driveOTSameAsRT','flyOTSameAsRT','driveUseTravelRate','flyUseTravelRate','driveRoundTrip','flyRoundTrip'];
+const CHECKBOX_FIELDS=['driveOTSameAsRT','flyOTSameAsRT','driveUseTravelRate','flyUseTravelRate','driveRoundTrip','flyRoundTrip','jetbuiltEnabled'];
 
 function $(id){return document.getElementById(id)}
 function v(id){const el=$(id);if(!el)return 0;if(el.type==='checkbox')return el.checked;if(el.type==='number')return parseFloat(el.value)||0;return el.value}
@@ -560,12 +618,14 @@ async function fetchGSARates(zip) {
       const rateInfo = data.rates[0];
       const city = rateInfo.city || "";
       const state = rateInfo.state || "";
-      const meals = rateInfo.rate[0].meals;
+      const rateData = rateInfo.rate && rateInfo.rate[0];
+      if (!rateData) { showToast("No rate data found for this zip."); return; }
+      const meals = rateData.meals || 0;
 
       // Find the Max Lodging rate for the year to be safe against delays
       let maxLodging = 0;
-      if(rateInfo.rate[0].months && rateInfo.rate[0].months.month) {
-          rateInfo.rate[0].months.month.forEach(m => {
+      if(rateData.months && rateData.months.month) {
+          rateData.months.month.forEach(m => {
               if(m.value > maxLodging) maxLodging = m.value;
           });
       }
@@ -701,7 +761,6 @@ function recalc(){
   $('sumDriveChargeDay').textContent = fmtInt(dChargeDay);
   $('sumDriveChargeTotal').textContent = fmtInt(dChargeTotal);
 
-
   // --- FLYING MATH ---
   const fBase = getBaseRate('fly');
   const flyUseTrvl = v('flyUseTravelRate');
@@ -823,9 +882,12 @@ async function loadFromURL(){
     if($(prefix+'RateSelect').value==='custom') $(prefix+'CustomRow').classList.add('visible');
     onRateSelect(prefix);
   });
+  // Restore Jetbuilt UI state
+  restoreJetbuiltState();
 }
 
-function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+let toastTimer;
+function showToast(msg){const t=$('toast');clearTimeout(toastTimer);t.classList.remove('show');void t.offsetWidth;t.textContent=msg;t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),2500)}
 
 async function copyURL(){
   try{await navigator.clipboard.writeText(location.origin+location.pathname+'#'+await compress(getState()));showToast('URL copied to clipboard')}catch(e){showToast('Could not copy URL')}
@@ -833,12 +895,13 @@ async function copyURL(){
 
 function getDefaults(){try{return JSON.parse(localStorage.getItem(LS_KEY))||FACTORY_DEFAULTS}catch(e){return FACTORY_DEFAULTS}}
 
-function resetForm(){
-  if(!confirm('Reset all fields to defaults?'))return;
+async function resetForm(){
+  if(!await showConfirm('Reset all fields to defaults?'))return;
   const d=getDefaults();
   SERIALIZED_FIELDS.forEach(id=>{const el=$(id);if(el)el.value=d[id]!==undefined?d[id]:(FACTORY_DEFAULTS[id]||'')});
   CHECKBOX_FIELDS.forEach(id=>{const el=$(id);if(el)el.checked=d[id]!==undefined?d[id]:(FACTORY_DEFAULTS[id]||false)});
   $('driveCustomRow').classList.remove('visible');$('flyCustomRow').classList.remove('visible');
+  clearJetbuiltProject();$('jetbuiltEnabled').checked=false;toggleJetbuilt();
   history.replaceState(null,'',location.pathname);
   onRateSelect('drive');onRateSelect('fly');recalc();showToast('Form reset');
 }
@@ -847,11 +910,11 @@ function saveDefaults(){
   const s={};
   SERIALIZED_FIELDS.forEach(id=>{const el=$(id);if(el)s[id]=el.value});
   CHECKBOX_FIELDS.forEach(id=>{const el=$(id);if(el)s[id]=el.checked});
-  s.projectName='';s.zipCode='';s.notes='';
+  s.projectName='';s.zipCode='';s.notes='';s.jetbuiltProjectId='';s.jetbuiltProjectName='';s.jetbuiltEnabled=false;
   try{localStorage.setItem(LS_KEY,JSON.stringify(s));showToast('Defaults saved');updateDefaultsStatus()}catch(e){showToast('Could not save defaults')}
 }
-function clearDefaults(){
-  if(!confirm('Clear saved defaults and revert to factory presets?'))return;
+async function clearDefaults(){
+  if(!await showConfirm('Clear saved defaults and revert to factory presets?'))return;
   localStorage.removeItem(LS_KEY);showToast('Defaults cleared');updateDefaultsStatus();
 }
 function updateDefaultsStatus(){
@@ -879,6 +942,147 @@ function toggleCollapse(el){
 }
 
 function toggleInfo(){$('infoPanel').classList.toggle('open')}
+
+function showConfirm(msg){
+  return new Promise(resolve=>{
+    $('confirmMsg').textContent=msg;
+    $('confirmOverlay').classList.add('open');
+    $('confirmYes').onclick=()=>{$('confirmOverlay').classList.remove('open');resolve(true)};
+    $('confirmNo').onclick=()=>{$('confirmOverlay').classList.remove('open');resolve(false)};
+  });
+}
+
+function openGSAUrl(){
+  const url=$('gsaUrl').value;
+  if(url&&url.startsWith('https://'))window.open(url,'_blank');
+  else showToast('No valid GSA URL available');
+}
+
+// --- Jetbuilt Integration ---
+function toggleJetbuilt(){
+  const on=$('jetbuiltEnabled').checked;
+  const inp=$('projectName');
+  if(on){
+    inp.placeholder='Search Jetbuilt projects...';
+    inp.setAttribute('data-jb-mode','1');
+    inp.oninput=function(){recalc();jbSearch(this.value)};
+    inp.onkeydown=jbKeydown;
+  }else{
+    inp.placeholder='e.g. Pittsburgh, PA';
+    inp.removeAttribute('data-jb-mode');
+    inp.oninput=function(){recalc()};
+    inp.onkeydown=null;
+    $('jbDropdown').classList.remove('open');
+    clearJetbuiltProject();
+  }
+}
+
+function jbSearch(query){
+  clearTimeout(jbSearchTimer);
+  const dd=$('jbDropdown');
+  if(query.length<JB_MIN_CHARS){dd.classList.remove('open');return}
+  dd.innerHTML='<div class="jb-dropdown-empty">Searching...</div>';
+  dd.classList.add('open');
+  jbActiveIndex=-1;
+  jbSearchTimer=setTimeout(async()=>{
+    try{
+      const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects?query='+encodeURIComponent(query));
+      if(!res.ok){dd.innerHTML='<div class="jb-dropdown-empty">Search failed ('+res.status+')</div>';return}
+      const projects=await res.json();
+      if(!projects.length){dd.innerHTML='<div class="jb-dropdown-empty">No projects found</div>';return}
+      dd.innerHTML='';
+      projects.forEach((p,i)=>{
+        const item=document.createElement('div');
+        item.className='jb-dropdown-item';
+        item.setAttribute('data-index',i);
+        const loc=[p.city,p.state].filter(Boolean).join(', ');
+        const sub=[p.client?p.client.name:'',loc].filter(Boolean).join(' — ');
+        item.innerHTML='<strong>'+escHtml(p.name)+'</strong>'+(sub?'<span class="jb-client">'+escHtml(sub)+'</span>':'');
+        item.onclick=()=>selectJetbuiltProject(p);
+        dd.appendChild(item);
+      });
+    }catch(e){
+      dd.innerHTML='<div class="jb-dropdown-empty">Could not reach Jetbuilt</div>';
+    }
+  },JB_DEBOUNCE);
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function jbKeydown(e){
+  const dd=$('jbDropdown');
+  if(!dd.classList.contains('open'))return;
+  const items=dd.querySelectorAll('.jb-dropdown-item');
+  if(!items.length)return;
+  if(e.key==='ArrowDown'){e.preventDefault();jbActiveIndex=Math.min(jbActiveIndex+1,items.length-1);jbHighlight(items)}
+  else if(e.key==='ArrowUp'){e.preventDefault();jbActiveIndex=Math.max(jbActiveIndex-1,0);jbHighlight(items)}
+  else if(e.key==='Enter'&&jbActiveIndex>=0){e.preventDefault();items[jbActiveIndex].click()}
+  else if(e.key==='Escape'){dd.classList.remove('open')}
+}
+
+function jbHighlight(items){
+  items.forEach((it,i)=>{it.classList.toggle('active',i===jbActiveIndex)});
+  if(items[jbActiveIndex])items[jbActiveIndex].scrollIntoView({block:'nearest'});
+}
+
+function selectJetbuiltProject(project){
+  $('jetbuiltProjectId').value=project.id;
+  $('jetbuiltProjectName').value=project.name;
+  $('projectName').value=project.name;
+  $('jbDropdown').classList.remove('open');
+  $('jbLinkedLabel').textContent='Linked: '+project.name+' (#'+project.id+')';
+  $('jetbuiltSelected').classList.add('visible');
+  $('saveToProjectBtn').style.display='';
+  // Auto-populate zip code and trigger GSA lookup
+  if(project.zipcode&&project.zipcode.length>=5){
+    $('zipCode').value=project.zipcode.slice(0,5);
+    fetchGSARates(project.zipcode.slice(0,5));
+  }
+  recalc();
+}
+
+function clearJetbuiltProject(){
+  $('jetbuiltProjectId').value='';
+  $('jetbuiltProjectName').value='';
+  $('jbLinkedLabel').textContent='';
+  $('jetbuiltSelected').classList.remove('visible');
+  $('saveToProjectBtn').style.display='none';
+}
+
+async function saveToJetbuilt(){
+  const pid=$('jetbuiltProjectId').value;
+  const pname=$('jetbuiltProjectName').value;
+  if(!pid){showToast('No Jetbuilt project selected');return}
+  if(!await showConfirm('Save travel estimate URL to Jetbuilt project "'+pname+'"?'))return;
+  showToast('Saving to Jetbuilt...');
+  try{
+    const url=location.origin+location.pathname+'#'+await compress(getState());
+    const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+pid,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({custom_fields:{Travel:url}})
+    });
+    if(res.ok){showToast('Saved to '+pname)}
+    else{const t=await res.text();showToast('Failed to save ('+res.status+')')}
+  }catch(e){showToast('Could not reach Jetbuilt')}
+}
+
+function restoreJetbuiltState(){
+  const pid=$('jetbuiltProjectId').value;
+  const pname=$('jetbuiltProjectName').value;
+  const enabled=$('jetbuiltEnabled').checked;
+  if(enabled)toggleJetbuilt();
+  if(pid&&pname){
+    $('jbLinkedLabel').textContent='Linked: '+pname+' (#'+pid+')';
+    $('jetbuiltSelected').classList.add('visible');
+    $('saveToProjectBtn').style.display='';
+  }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.jb-field-wrap'))$('jbDropdown').classList.remove('open');
+});
 
 initTheme();buildDropdowns();buildRateTable();updateDefaultsStatus();loadFromURL();
 </script>
