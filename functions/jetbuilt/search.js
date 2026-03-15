@@ -18,7 +18,7 @@ export async function onRequestGet(context) {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: 'Upstream request failed', message: e.message }), {
+    return new Response(JSON.stringify({ error: 'Upstream request failed' }), {
       status: 502,
       headers: { 'Content-Type': 'application/json' }
     });

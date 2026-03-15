@@ -12,7 +12,7 @@ export default {
     if (request.method === 'GET' && path === '/jetbuilt/projects') {
       const query = url.searchParams.get('query') || '';
       const page = url.searchParams.get('page') || '1';
-      const upstream = `https://api.jetbuilt.com/api/projects?query=${encodeURIComponent(query)}&page=${page}&active=true`;
+      const upstream = `https://app.jetbuilt.com/api/projects?query=${encodeURIComponent(query)}&page=${page}&active=true`;
       return proxy(upstream, 'GET', null, env);
     }
 
@@ -21,7 +21,7 @@ export default {
     if (request.method === 'PATCH' && patchMatch) {
       const id = patchMatch[1];
       const body = await request.text();
-      return proxy(`https://api.jetbuilt.com/api/projects/${id}`, 'PATCH', body, env);
+      return proxy(`https://app.jetbuilt.com/api/projects/${id}`, 'PATCH', body, env);
     }
 
     return new Response('Not Found', { status: 404, headers: corsHeaders() });
