@@ -1058,42 +1058,24 @@ async function saveToJetbuilt(){
   try{
     const url=location.origin+location.pathname+'#'+await compress(getState());
     console.log('[Jetbuilt] URL length:',url.length,'chars');
-    const payload={custom_fields:{Travel:url}};
     const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+pid,{
       method:'PATCH',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
+      body:JSON.stringify({short_description:url})
     });
     const raw=await res.text();
     console.log('[Jetbuilt] Response status:',res.status);
-    console.log('[Jetbuilt] Response body:',raw.slice(0,500));
     if(!res.ok){showToast('Failed to save ('+res.status+')');return}
     let data;
     try{data=JSON.parse(raw)}catch(e){
-      console.error('[Jetbuilt] Response is not valid JSON');
       showToast('Saved but could not verify (invalid response)');return;
     }
-    const cf=data.custom_fields;
-    if(!cf||typeof cf!=='object'){
-      console.warn('[Jetbuilt] No custom_fields in response');
-      showToast('Saved but custom_fields missing from response');return;
-    }
-    const keys=Object.keys(cf);
-    console.log('[Jetbuilt] Returned custom_fields keys:',keys);
-    if(keys.length===0){
-      console.warn('[Jetbuilt] custom_fields is empty — no custom fields configured in Jetbuilt');
-      showToast('No custom fields configured in Jetbuilt. Add a "Travel" field in Settings → Company → Defaults.');return;
-    }
-    if(!('Travel' in cf)){
-      console.warn('[Jetbuilt] "Travel" key not found. Available:',keys);
-      showToast('Field "Travel" not found. Available: '+keys.join(', '));return;
-    }
-    const saved=cf.Travel||'';
+    const saved=data.short_description||'';
     if(saved.length<url.length){
       console.warn('[Jetbuilt] Truncation: sent',url.length,'chars, got back',saved.length);
-      showToast('Saved to '+pname+' (truncated from '+url.length+' to '+saved.length+' chars)');
+      showToast('Saved to '+pname+' (warning: URL truncated)');
     }else{
-      console.log('[Jetbuilt] Success —',saved.length,'chars saved');
+      console.log('[Jetbuilt] Success —',saved.length,'chars saved to short_description');
       showToast('Saved to '+pname);
     }
   }catch(e){console.error('[Jetbuilt] Network error:',e);showToast('Could not reach Jetbuilt')}
