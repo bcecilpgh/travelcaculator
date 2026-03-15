@@ -1058,7 +1058,7 @@ async function saveToJetbuilt(){
   try{
     const url=location.origin+location.pathname+'#'+await compress(getState());
     console.log('[Jetbuilt] URL length:',url.length,'chars');
-    const payload={custom_fields:{Travel:url}};
+    const payload={project:{custom_fields:{Travel:url}}};
     console.log('[Jetbuilt] PATCH /projects/'+pid,'payload keys:',Object.keys(payload));
     const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+pid,{
       method:'PATCH',
