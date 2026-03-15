@@ -952,6 +952,17 @@ function showConfirm(msg){
   });
 }
 
+function showChoice(msg,yesLabel,noLabel){
+  return new Promise(resolve=>{
+    $('confirmMsg').textContent=msg;
+    $('confirmYes').textContent=yesLabel||'Confirm';
+    $('confirmNo').textContent=noLabel||'Cancel';
+    $('confirmOverlay').classList.add('open');
+    $('confirmYes').onclick=()=>{$('confirmOverlay').classList.remove('open');$('confirmYes').textContent='Confirm';$('confirmNo').textContent='Cancel';resolve(true)};
+    $('confirmNo').onclick=()=>{$('confirmOverlay').classList.remove('open');$('confirmYes').textContent='Confirm';$('confirmNo').textContent='Cancel';resolve(false)};
+  });
+}
+
 function openGSAUrl(){
   const url=$('gsaUrl').value;
   if(url&&url.startsWith('https://'))window.open(url,'_blank');
@@ -1025,7 +1036,7 @@ function jbHighlight(items){
   if(items[jbActiveIndex])items[jbActiveIndex].scrollIntoView({block:'nearest'});
 }
 
-function selectJetbuiltProject(project){
+async function selectJetbuiltProject(project){
   $('jetbuiltProjectId').value=project.id;
   $('jetbuiltProjectName').value=project.name;
   $('projectName').value=project.name;
@@ -1039,6 +1050,42 @@ function selectJetbuiltProject(project){
     fetchGSARates(project.zipcode.slice(0,5));
   }
   recalc();
+  // Check for saved estimate in short_description
+  try{
+    const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+project.id);
+    if(!res.ok)return;
+    const full=await res.json();
+    const desc=full.short_description||'';
+    const hi=desc.indexOf('#');
+    if(hi<0)return;
+    const compressed=desc.slice(hi+1);
+    if(!compressed)return;
+    let stateJson;
+    try{stateJson=await decompress(compressed);JSON.parse(stateJson)}catch(e){return}
+    const useExisting=await showChoice('This project has an existing travel estimate. Use existing data or start fresh?','Use Existing','Start Fresh');
+    if(useExisting)applyJetbuiltState(stateJson);
+  }catch(e){console.log('[Jetbuilt] Could not check for saved estimate:',e)}
+}
+
+function applyJetbuiltState(stateJson){
+  const pid=$('jetbuiltProjectId').value;
+  const pname=$('jetbuiltProjectName').value;
+  const zip=$('zipCode').value;
+  setState(stateJson);
+  // Preserve current project link
+  $('jetbuiltProjectId').value=pid;
+  $('jetbuiltProjectName').value=pname;
+  $('projectName').value=pname;
+  if(zip)$('zipCode').value=zip;
+  $('jetbuiltEnabled').checked=true;
+  // Restore UI
+  ['drive','fly'].forEach(prefix=>{
+    if($(prefix+'RateSelect').value==='custom')$(prefix+'CustomRow').classList.add('visible');
+    onRateSelect(prefix);
+  });
+  restoreJetbuiltState();
+  recalc();
+  showToast('Estimate loaded from '+pname);
 }
 
 function clearJetbuiltProject(){
