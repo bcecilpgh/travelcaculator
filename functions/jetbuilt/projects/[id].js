@@ -1,3 +1,27 @@
+// GET /jetbuilt/projects/:id — read a single Jetbuilt project
+export async function onRequestGet(context) {
+  const id = context.params.id;
+
+  try {
+    const res = await fetch('https://app.jetbuilt.com/api/projects/' + id, {
+      headers: {
+        'Authorization': 'Token token=' + context.env.JETBUILT_API_KEY,
+        'Accept': 'application/vnd.jetbuilt.v1'
+      }
+    });
+    const data = await res.text();
+    return new Response(data, {
+      status: res.status,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: 'Upstream request failed', message: e.message }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 // PATCH /jetbuilt/projects/:id — update Jetbuilt project custom fields
 export async function onRequestPatch(context) {
   const id = context.params.id;

@@ -16,6 +16,13 @@ export default {
       return proxy(upstream, 'GET', null, env);
     }
 
+    // GET /jetbuilt/projects/:id — read a single project
+    const getMatch = path.match(/^\/jetbuilt\/projects\/(\d+)$/);
+    if (request.method === 'GET' && getMatch) {
+      const id = getMatch[1];
+      return proxy(`https://app.jetbuilt.com/api/projects/${id}`, 'GET', null, env);
+    }
+
     // PATCH /jetbuilt/projects/:id — update project custom fields
     const patchMatch = path.match(/^\/jetbuilt\/projects\/(\d+)$/);
     if (request.method === 'PATCH' && patchMatch) {

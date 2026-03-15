@@ -1056,6 +1056,13 @@ async function saveToJetbuilt(){
   if(!await showConfirm('Save travel estimate URL to Jetbuilt project "'+pname+'"?'))return;
   showToast('Saving to Jetbuilt...');
   try{
+    // Preflight: GET the project to see available custom fields
+    const preRes=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+pid);
+    if(preRes.ok){
+      const preData=await preRes.json();
+      console.log('[Jetbuilt] GET project custom_fields:',JSON.stringify(preData.custom_fields));
+      console.log('[Jetbuilt] GET project top-level keys:',Object.keys(preData));
+    }else{console.warn('[Jetbuilt] Preflight GET failed:',preRes.status)}
     const url=location.origin+location.pathname+'#'+await compress(getState());
     console.log('[Jetbuilt] URL length:',url.length,'chars');
     const payload={project:{custom_fields:{Travel:url}}};
@@ -1067,7 +1074,7 @@ async function saveToJetbuilt(){
     });
     const raw=await res.text();
     console.log('[Jetbuilt] Response status:',res.status);
-    console.log('[Jetbuilt] Response body preview:',raw.slice(0,500));
+    console.log('[Jetbuilt] Response FULL body:',raw);
     if(!res.ok){showToast('Failed to save ('+res.status+')');return}
     let data;
     try{data=JSON.parse(raw)}catch(e){
