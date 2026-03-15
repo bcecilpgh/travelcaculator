@@ -1057,14 +1057,43 @@ async function saveToJetbuilt(){
   showToast('Saving to Jetbuilt...');
   try{
     const url=location.origin+location.pathname+'#'+await compress(getState());
+    console.log('[Jetbuilt] URL length:',url.length,'chars');
+    const payload={custom_fields:{Travel:url}};
+    console.log('[Jetbuilt] PATCH /projects/'+pid,'payload keys:',Object.keys(payload));
     const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+pid,{
       method:'PATCH',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({custom_fields:{Travel:url}})
+      body:JSON.stringify(payload)
     });
-    if(res.ok){showToast('Saved to '+pname)}
-    else{const t=await res.text();showToast('Failed to save ('+res.status+')')}
-  }catch(e){showToast('Could not reach Jetbuilt')}
+    const raw=await res.text();
+    console.log('[Jetbuilt] Response status:',res.status);
+    console.log('[Jetbuilt] Response body preview:',raw.slice(0,500));
+    if(!res.ok){showToast('Failed to save ('+res.status+')');return}
+    let data;
+    try{data=JSON.parse(raw)}catch(e){
+      console.error('[Jetbuilt] Response is not valid JSON:',raw.slice(0,200));
+      showToast('Saved but could not verify (invalid response)');return;
+    }
+    const cf=data.custom_fields;
+    if(!cf){
+      console.warn('[Jetbuilt] No custom_fields in response. Top-level keys:',Object.keys(data));
+      showToast('Saved but custom_fields missing from response');return;
+    }
+    console.log('[Jetbuilt] Returned custom_fields keys:',Object.keys(cf));
+    if(!('Travel' in cf)){
+      const available=Object.keys(cf).join(', ');
+      console.warn('[Jetbuilt] "Travel" key not found. Available keys:',available);
+      showToast('Field "Travel" not found. Available: '+available);return;
+    }
+    const saved=cf.Travel||'';
+    if(saved.length<url.length){
+      console.warn('[Jetbuilt] Truncation detected: sent',url.length,'chars, got back',saved.length);
+      showToast('Saved to '+pname+' (warning: value was truncated from '+url.length+' to '+saved.length+' chars)');
+    }else{
+      console.log('[Jetbuilt] Success — saved',saved.length,'chars to "Travel" field');
+      showToast('Saved to '+pname);
+    }
+  }catch(e){console.error('[Jetbuilt] Network error:',e);showToast('Could not reach Jetbuilt')}
 }
 
 function restoreJetbuiltState(){
