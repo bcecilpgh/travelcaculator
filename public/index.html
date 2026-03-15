@@ -986,7 +986,7 @@ function jbSearch(query){
   jbActiveIndex=-1;
   jbSearchTimer=setTimeout(async()=>{
     try{
-      const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects?query='+encodeURIComponent(query));
+      const res=await fetch(JETBUILT_PROXY+'/jetbuilt/search?query='+encodeURIComponent(query));
       if(!res.ok){dd.innerHTML='<div class="jb-dropdown-empty">Search failed ('+res.status+')</div>';return}
       const projects=await res.json();
       if(!projects.length){dd.innerHTML='<div class="jb-dropdown-empty">No projects found</div>';return}
