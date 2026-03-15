@@ -1056,17 +1056,9 @@ async function saveToJetbuilt(){
   if(!await showConfirm('Save travel estimate URL to Jetbuilt project "'+pname+'"?'))return;
   showToast('Saving to Jetbuilt...');
   try{
-    // Preflight: GET the project to see available custom fields
-    const preRes=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+pid);
-    if(preRes.ok){
-      const preData=await preRes.json();
-      console.log('[Jetbuilt] GET project custom_fields:',JSON.stringify(preData.custom_fields));
-      console.log('[Jetbuilt] GET project top-level keys:',Object.keys(preData));
-    }else{console.warn('[Jetbuilt] Preflight GET failed:',preRes.status)}
     const url=location.origin+location.pathname+'#'+await compress(getState());
     console.log('[Jetbuilt] URL length:',url.length,'chars');
-    const payload={project:{custom_fields:{Travel:url}}};
-    console.log('[Jetbuilt] PATCH /projects/'+pid,'payload keys:',Object.keys(payload));
+    const payload={custom_fields:{Travel:url}};
     const res=await fetch(JETBUILT_PROXY+'/jetbuilt/projects/'+pid,{
       method:'PATCH',
       headers:{'Content-Type':'application/json'},
@@ -1074,30 +1066,34 @@ async function saveToJetbuilt(){
     });
     const raw=await res.text();
     console.log('[Jetbuilt] Response status:',res.status);
-    console.log('[Jetbuilt] Response FULL body:',raw);
+    console.log('[Jetbuilt] Response body:',raw.slice(0,500));
     if(!res.ok){showToast('Failed to save ('+res.status+')');return}
     let data;
     try{data=JSON.parse(raw)}catch(e){
-      console.error('[Jetbuilt] Response is not valid JSON:',raw.slice(0,200));
+      console.error('[Jetbuilt] Response is not valid JSON');
       showToast('Saved but could not verify (invalid response)');return;
     }
     const cf=data.custom_fields;
-    if(!cf){
-      console.warn('[Jetbuilt] No custom_fields in response. Top-level keys:',Object.keys(data));
+    if(!cf||typeof cf!=='object'){
+      console.warn('[Jetbuilt] No custom_fields in response');
       showToast('Saved but custom_fields missing from response');return;
     }
-    console.log('[Jetbuilt] Returned custom_fields keys:',Object.keys(cf));
+    const keys=Object.keys(cf);
+    console.log('[Jetbuilt] Returned custom_fields keys:',keys);
+    if(keys.length===0){
+      console.warn('[Jetbuilt] custom_fields is empty — no custom fields configured in Jetbuilt');
+      showToast('No custom fields configured in Jetbuilt. Add a "Travel" field in Settings → Company → Defaults.');return;
+    }
     if(!('Travel' in cf)){
-      const available=Object.keys(cf).join(', ');
-      console.warn('[Jetbuilt] "Travel" key not found. Available keys:',available);
-      showToast('Field "Travel" not found. Available: '+available);return;
+      console.warn('[Jetbuilt] "Travel" key not found. Available:',keys);
+      showToast('Field "Travel" not found. Available: '+keys.join(', '));return;
     }
     const saved=cf.Travel||'';
     if(saved.length<url.length){
-      console.warn('[Jetbuilt] Truncation detected: sent',url.length,'chars, got back',saved.length);
-      showToast('Saved to '+pname+' (warning: value was truncated from '+url.length+' to '+saved.length+' chars)');
+      console.warn('[Jetbuilt] Truncation: sent',url.length,'chars, got back',saved.length);
+      showToast('Saved to '+pname+' (truncated from '+url.length+' to '+saved.length+' chars)');
     }else{
-      console.log('[Jetbuilt] Success — saved',saved.length,'chars to "Travel" field');
+      console.log('[Jetbuilt] Success —',saved.length,'chars saved');
       showToast('Saved to '+pname);
     }
   }catch(e){console.error('[Jetbuilt] Network error:',e);showToast('Could not reach Jetbuilt')}

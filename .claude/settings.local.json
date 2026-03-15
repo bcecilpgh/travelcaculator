@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git -C /c/Users/brandon.cecil/Documents/GitHub/travelcaculator log --oneline -10)",
-      "Bash(git config --list)"
+      "Bash(git config --list)",
+      "WebFetch(domain:github.com)",
+      "Bash(curl -s https://api.github.com/repos/Jetbuilt/jetbuilt-api-docs/git/trees/main?recursive=1 -H 'Accept: application/vnd.github.v3+json')",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch"
     ]
   }
 }
